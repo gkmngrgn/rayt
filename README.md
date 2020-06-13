@@ -3,8 +3,7 @@
 ## Build C++ Project
 
 ```
-cd cpp
-mkdir build
+cd rayt-cpp
 cmake . -B build
 ```
 
@@ -20,3 +19,8 @@ I didn't try the project on Ubuntu yet, will write here how to do that later.
 ## Build Python Project
 
 I tested the project using the latest stable version of Python (3.8). Use poetry to manage commands and dependencies.
+
+```
+cd rayt-python
+poetry run rayt
+```
