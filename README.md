@@ -1,4 +1,6 @@
-# RAYT
+# RAYT (NOT COMPLETED)
+
+Ray Tracing codes. I follow Peter Shirley's [Ray Tracing][https://raytracing.github.io/] trilogy.
 
 ## Build C++ Project
 
@@ -11,11 +13,6 @@ cd build
 nmake
 rayt-cpp.exe > image.ppm
 ```
-
-If you are on Windows, open solution file (rayt-cpp.sln) with Visual Studio and build it using the IDE.
-
-I didn't try the project on Ubuntu yet, will write here how to do that later.
-
 
 ## Build Rust Project
 
