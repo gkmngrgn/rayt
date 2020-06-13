@@ -2,9 +2,14 @@
 
 ## Build C++ Project
 
+CMake will generate makefiles for your operating system. If you didn't use CMake before, take a look at the documentation to learn how to build a C++ project. Example usage:
+
 ```
 cd rayt-cpp
-cmake . -B build
+cmake . -G "NMake Makefiles" -B build
+cd build
+nmake
+rayt-cpp.exe > image.ppm
 ```
 
 If you are on Windows, open solution file (rayt-cpp.sln) with Visual Studio and build it using the IDE.
