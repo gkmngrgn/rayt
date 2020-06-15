@@ -1,6 +1,8 @@
 # RAYT (NOT COMPLETED)
 
-Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.github.io/) trilogy.
+Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.github.io/) trilogy. The goal is to have the same output in three languages; C++, Python, and Rust. Current status is:
+
+![](assets/image.png)
 
 ## Build C++ Project
 
