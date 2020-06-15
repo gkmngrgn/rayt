@@ -1,8 +1,8 @@
-#include "../include/camera.hpp"
-#include "../include/color.hpp"
-#include "../include/hittable_list.hpp"
-#include "../include/sphere.hpp"
-#include "../include/utils.hpp"
+#include "camera.hpp"
+#include "color.hpp"
+#include "hittable_list.hpp"
+#include "sphere.hpp"
+#include "utils.hpp"
 
 #include <iostream>
 
