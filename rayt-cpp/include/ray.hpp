@@ -1,5 +1,5 @@
-#ifndef RAY_H
-#define RAY_H
+#ifndef RAY_HPP
+#define RAY_HPP
 
 #include "vec3.hpp"
 

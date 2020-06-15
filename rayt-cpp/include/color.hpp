@@ -1,5 +1,5 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef COLOR_HPP
+#define COLOR_HPP
 
 #include "utils.hpp"
 
