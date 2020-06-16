@@ -89,9 +89,9 @@ hittable_list random_scene() {
 
 int main() {
   const auto aspect_ratio = 16.0 / 9.0;
-  const int image_width = 384;
+  const int image_width = 1200;
   const int image_height = static_cast<int>(image_width / aspect_ratio);
-  const int samples_per_pixel = 100;
+  const int samples_per_pixel = 20;
   const int max_depth = 50;
 
   std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -109,8 +109,8 @@ int main() {
   for (int j = image_height - 1; j >= 0; --j) {
     std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
 
-    for (int i = 0; i < image_width; i++) {
-      color pixel_color(0, 0, 0);
+    for (int i = 0; i < image_width; ++i) {
+      color pixel_color;
 
       for (int s = 0; s < samples_per_pixel; ++s) {
         auto u = (i + random_double()) / (image_width - 1);
