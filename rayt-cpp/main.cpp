@@ -62,8 +62,13 @@ int main() {
   world.add(make_shared<sphere>(point3(-1, 0, -1), -0.45,
                                 make_shared<dielectric>(1.5)));
 
+  point3 lookfrom(3, 3, 2);
+  point3 lookat(0, 0, -1);
   vec3 vup(0, 1, 0);
-  camera cam(point3(-2, 2, 1), point3(0, 0, -1), vup, 20, aspect_ratio);
+  auto dist_to_focus = (lookfrom - lookat).length();
+  auto aperture = 2.0;
+
+  camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
 
   for (int j = image_height - 1; j >= 0; --j) {
     std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
