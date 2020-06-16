@@ -39,8 +39,4 @@ inline double clamp(double x, double min, double max) {
   return x;
 }
 
-// Common Headers
-#include "ray.hpp"
-#include "vec3.hpp"
-
 #endif

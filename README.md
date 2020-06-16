@@ -12,8 +12,8 @@ CMake will generate makefiles for your operating system. If you didn't use CMake
 cd rayt-cpp
 cmake . -G "NMake Makefiles" -B build
 cd build
-nmake
-rayt-cpp.exe > image.ppm
+nmake install
+bin\rayt-cpp.exe > image.ppm
 ```
 
 ## Build Rust Project
