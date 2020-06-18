@@ -3,6 +3,7 @@ import math
 from rayt_python.hittable import HitRecord
 from rayt_python.ray import Ray
 from rayt_python.vec3 import Color, dot
+from rayt_python.utils import random_double
 
 
 class Material:
