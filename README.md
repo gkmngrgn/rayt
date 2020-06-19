@@ -28,3 +28,10 @@ I tested the project using the latest stable version of Python (3.8). Use poetry
 cd rayt-python
 poetry run rayt
 ```
+
+### TODO
+
+- [ ] immutable objects conversion.
+- [ ] inline functions conversion.
+- [ ] use dataclass for structure types.
+- [ ] use async for performance improvements.
