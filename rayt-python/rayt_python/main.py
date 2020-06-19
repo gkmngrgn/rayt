@@ -2,12 +2,13 @@ import math
 import sys
 
 from rayt_python.camera import Camera
+from rayt_python.color import write_color
 from rayt_python.config import Config
 from rayt_python.hittable import HitRecord, Hittable
 from rayt_python.hittable_list import HittableList
-from rayt_python.sphere import Sphere
 from rayt_python.material import Dielectric, Lambertian, Metal
 from rayt_python.ray import Ray
+from rayt_python.sphere import Sphere
 from rayt_python.utils import random_double
 from rayt_python.vec3 import Color, Point3, Vec3, dot, unit_vector
 
@@ -98,7 +99,7 @@ def main() -> None:
                 u = (i + random_double()) / (image_width - 1)
                 v = (j + random_double()) / (image_height - 1)
                 ray = cam.get_ray(u, v)
-                pixel_color += ray_color(r, world, max_depth)
+                pixel_color += ray_color(ray, world, max_depth)
 
             write_color(pixel_color, samples_per_pixel)
 
