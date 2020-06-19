@@ -3,7 +3,6 @@ import sys
 
 from rayt_python.camera import Camera
 from rayt_python.color import write_color
-from rayt_python.config import Config
 from rayt_python.hittable import HitRecord, Hittable
 from rayt_python.hittable_list import HittableList
 from rayt_python.material import Dielectric, Lambertian, Metal
@@ -42,7 +41,7 @@ def ray_color(ray: Ray, world: Hittable, depth: int) -> Color:
 
 def random_scene() -> HittableList:
     world = HittableList()
-    ground_material = Lambertian(color=Color(0.5, 0.5, 0.5))
+    ground_material = Lambertian(albedo=Color(0.5, 0.5, 0.5))
     world.add(Sphere(Point3(0, -1000, 0), 1000, ground_material))
 
     for a in range(-11, 11):
@@ -71,21 +70,21 @@ def random_scene() -> HittableList:
 
 
 def main() -> None:
-    aspect_ratio = Config.aspect_ratio
-    image_width = Config.image_width
+    aspect_ratio = 16.0 / 9.0
+    image_width = 1200
     image_height = int(image_width / aspect_ratio)
-    samples_per_pixel = Config.samples_per_pixel
-    max_depth = Config.max_depth
+    samples_per_pixel = 20
+    max_depth = 50
 
     print(f"P3\n{image_width} {image_height}\n255")
 
     world = random_scene()
 
-    lookfrom = Point3(Config.look_from)
-    lookat = Point3(Config.look_at)
-    vup = Vec3(Config.vup)
-    dist_to_focus = float(Config.dist_to_focus)
-    aperture = float(Config.aperture)
+    lookfrom = Point3(13, 2, 3)
+    lookat = Point3(0, 0, 0)
+    vup = Vec3(0, 1, 0)
+    dist_to_focus = 10.0
+    aperture = 0.1
 
     cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
 
