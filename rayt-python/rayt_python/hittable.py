@@ -1,15 +1,14 @@
 from dataclasses import dataclass
 
-from rayt_python.material import Material
 from rayt_python.ray import Ray
-from rayt_python.vec3 import Point3, Vec3, dot
+from rayt_python.vec3 import Point3, Vec3
 
 
 @dataclass
 class HitRecord:
     p: Point3
     normal: Vec3
-    material: Material
+    material: "rayt_python.material.Material"
     t: float
     front_face: bool
 

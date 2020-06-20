@@ -2,8 +2,16 @@ import math
 
 from rayt_python.hittable import HitRecord
 from rayt_python.ray import Ray
-from rayt_python.vec3 import Color, dot
 from rayt_python.utils import random_double
+from rayt_python.vec3 import (
+    Color,
+    dot,
+    random_in_unit_sphere,
+    random_unit_vector,
+    reflect,
+    refract,
+    unit_vector,
+)
 
 
 class Material:
@@ -35,8 +43,8 @@ class Metal(Material):
         self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray
     ) -> bool:
         reflected = reflect(unit_vector(r_in.direction()), rec.normal)
-        scattered = Ray(rec.p, reflected + fuzz * random_in_unit_sphere())
-        attenuation = albedo
+        scattered = Ray(rec.p, reflected + self.fuzz * random_in_unit_sphere())
+        attenuation = self.albedo
         return dot(scattered.direction(), rec.normal) > 0
 
 
@@ -48,9 +56,9 @@ class Dielectric(Material):
         self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray
     ) -> bool:
         attenuation = Color(1.0, 1.0, 1.0)
-        etai_over_etat = 1.0 / ref_idx if rec.front_face else ref_idx
+        etai_over_etat = 1.0 / self.ref_idx if rec.front_face else self.ref_idx
         unit_direction = unit_vector(r_in.direction())
-        cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0)
+        cos_theta = min(dot(-unit_direction, rec.normal), 1.0)
         sin_theta = math.sqrt(1.0 - cos_theta * cos_theta)
 
         if etai_over_etat * sin_theta > 1.0:
@@ -67,3 +75,9 @@ class Dielectric(Material):
         refracted = refract(unit_direction, rec.normal, etai_over_etat)
         scattered = Ray(rec.p, refracted)
         return True
+
+
+def schlick(cosine: float, ref_idx: float) -> float:
+    r0 = (1 - ref_idx) / (1 + ref_idx)
+    r0 = pow(r0, 2)
+    return r0 + (1 - r0) * pow((1 - cosine), 5)

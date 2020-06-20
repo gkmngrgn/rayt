@@ -41,7 +41,7 @@ class Vec3:
 
     @property
     def length_squared(self) -> float:
-        return math.pow(self.e[0], 2) + math.pow(self.e[1], 2) + math.pow(self.e[2], 2)
+        return pow(self.e[0], 2) + pow(self.e[1], 2) + pow(self.e[2], 2)
 
 
 def dot(u: Vec3, v: Vec3) -> float:
@@ -64,12 +64,29 @@ def cross(u: Vec3, v: Vec3) -> Vec3:  # TODO: inline function
     )
 
 
-def random_in_unit_disk():
+def random_in_unit_disk() -> Vec3:
     while True:
         p = Vec3(random_double(-1, 1), random_double(-1, 1), 0)
-        if p.length_squared >= 1:
-            continue
-        return p
+        if p.length_squared() < 1:
+            return p
+
+
+def random_in_unit_sphere() -> Vec3:
+    while True:
+        p = Vec3.random(-1, 1)
+        if p.length_squared() < 1:
+            return p
+
+
+def reflect(v: Vec3, n: Vec3) -> Vec3:
+    return v - 2 * dot(v, n) * n
+
+
+def refract(uv: Vec3, n: Vec3, etai_over_etat) -> Vec3:
+    cos_theta = dot(-uv, n)
+    r_out_parallel = etai_over_etat * (uv + cos_theta * n)
+    r_out_perp = -math.sqrt(1.0 - r_out_parallel.length_squared()) * n
+    return r_out_parallel + r_out_perp
 
 
 Point3 = Vec3  # 3D point
