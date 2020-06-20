@@ -2,7 +2,13 @@ import math
 
 from rayt_python.ray import Ray
 from rayt_python.utils import degrees_to_radians
-from rayt_python.vec3 import Point3, Vec3, cross, random_in_unit_disk, unit_vector
+from rayt_python.vec3 import (
+    Point3,
+    Vec3,
+    cross,
+    random_in_unit_disk,
+    unit_vector,
+)
 
 
 class Camera:
@@ -26,21 +32,21 @@ class Camera:
         self.v = cross(self.w, self.u)
 
         self.origin = lookfrom
-        self.horizontal = focus_dist * viewport_width * self.u
-        self.vertical = focus_dist * viewport_height * self.v
+        self.horizontal = self.u * focus_dist * viewport_width
+        self.vertical = self.v * focus_dist * viewport_height
         self.lower_left_corner = (
-            self.origin - self.horizontal / 2 - self.vertical / 2 - focus_dist * self.w
+            self.origin - self.horizontal / 2 - self.vertical / 2 - self.w * focus_dist
         )
         self.lens_radius = aperture / 2
 
     def get_ray(self, s: float, t: float) -> Ray:
-        rd = self.lens_radius * random_in_unit_disk()
-        offset = self.u * rd.x() + self.v * rd.y()
+        rd = random_in_unit_disk() * self.lens_radius
+        offset = self.u * rd.x + self.v * rd.y
         return Ray(
             self.origin + offset,
             self.lower_left_corner
-            + s * self.horizontal
-            + t * self.vertical
+            + self.horizontal * s
+            + self.vertical * t
             - self.origin
             - offset,
         )

@@ -8,15 +8,34 @@ class Vec3:
     def __init__(self, e0: float = 0.0, e1: float = 0.0, e2: float = 0.0) -> None:
         self.e = (e0, e1, e2)
 
-    def __sub__(self, other) -> "Vec3":
-        return Vec3(
-            self.e[0] - other.e[0], self.e[1] - other.e[1], self.e[2] + other.e[2]
-        )
-
-    def __concat__(self, other) -> "Vec3":
+    def __add__(self, other: "Vec3") -> "Vec3":
         return Vec3(
             self.e[0] + other.e[0], self.e[1] + other.e[1], self.e[2] + other.e[2]
         )
+
+    def __sub__(self, other: "Vec3") -> "Vec3":
+        return Vec3(
+            self.e[0] - other.e[0], self.e[1] - other.e[1], self.e[2] - other.e[2]
+        )
+
+    def __mul__(self, other: typing.Union["Vec3", float]) -> "Vec3":
+        if isinstance(other, float):
+            o = (other, other, other)
+        else:
+            o = other.e
+        return Vec3(self.e[0] * o[0], self.e[1] * o[1], self.e[2] * o[2])
+
+    def __imul__(self, other) -> "Vec3":
+        import ipdb
+
+        ipdb.set_trace()
+
+    def __truediv__(self, other: typing.Union["Vec3", float, int]) -> "Vec3":
+        if isinstance(other, (float, int)):
+            o = (other, other, other)
+        else:
+            o = other.e
+        return Vec3(self.e[0] * o[0], self.e[1] * o[1], self.e[2] * o[2])
 
     @classmethod
     def random(cls, min: float = 0.0, max: float = 1.0) -> "Vec3":
