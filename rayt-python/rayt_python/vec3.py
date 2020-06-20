@@ -1,4 +1,5 @@
 import math
+import typing
 
 from rayt_python.utils import random_double
 
@@ -18,7 +19,7 @@ class Vec3:
         )
 
     @classmethod
-    def random(cls, min: float, max: float) -> "Vec3":
+    def random(cls, min: float = 0.0, max: float = 1.0) -> "Vec3":
         return Vec3(
             random_double(min, max), random_double(min, max), random_double(min, max)
         )
@@ -37,10 +38,13 @@ class Vec3:
 
     @property
     def length(self) -> float:
+        # TODO: I'm not sure if it's a good idea to make cpp const methods as
+        # @property in Python.
         return math.sqrt(self.length_squared)
 
     @property
     def length_squared(self) -> float:
+        # TODO: same problem here. It's a cpp const method.
         return pow(self.e[0], 2) + pow(self.e[1], 2) + pow(self.e[2], 2)
 
 
@@ -53,7 +57,7 @@ def random_unit_vector() -> Vec3:
 
 
 def unit_vector(v: Vec3) -> Vec3:  # TODO: inline function
-    return v / v.length()
+    return v / v.length
 
 
 def cross(u: Vec3, v: Vec3) -> Vec3:  # TODO: inline function
@@ -67,14 +71,14 @@ def cross(u: Vec3, v: Vec3) -> Vec3:  # TODO: inline function
 def random_in_unit_disk() -> Vec3:
     while True:
         p = Vec3(random_double(-1, 1), random_double(-1, 1), 0)
-        if p.length_squared() < 1:
+        if p.length_squared < 1:
             return p
 
 
 def random_in_unit_sphere() -> Vec3:
     while True:
         p = Vec3.random(-1, 1)
-        if p.length_squared() < 1:
+        if p.length_squared < 1:
             return p
 
 
@@ -85,9 +89,13 @@ def reflect(v: Vec3, n: Vec3) -> Vec3:
 def refract(uv: Vec3, n: Vec3, etai_over_etat) -> Vec3:
     cos_theta = dot(-uv, n)
     r_out_parallel = etai_over_etat * (uv + cos_theta * n)
-    r_out_perp = -math.sqrt(1.0 - r_out_parallel.length_squared()) * n
+    r_out_perp = -math.sqrt(1.0 - r_out_parallel.length_squared) * n
     return r_out_parallel + r_out_perp
 
 
-Point3 = Vec3  # 3D point
-Color = Vec3  # RGB Color
+class Point3(Vec3):  # 3D point
+    pass
+
+
+class Color(Vec3):  # RGB Color
+    pass

@@ -14,9 +14,9 @@ class Sphere(Hittable):
 
     def hit(self, r: Ray, t_min: float, t_max: float, rec: HitRecord) -> bool:
         oc = r.origin() - self.center
-        a = r.direction().length_squared()
+        a = r.direction().length_squared
         half_b = dot(oc, r.direction())
-        c = oc.length_squared() - self.radius * self.radius
+        c = oc.length_squared - self.radius * self.radius
         discriminant = half_b * half_b - a * c
 
         if discriminant > 0:

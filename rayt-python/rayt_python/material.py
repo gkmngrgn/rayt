@@ -1,4 +1,5 @@
 import math
+import typing
 
 from rayt_python.hittable import HitRecord
 from rayt_python.ray import Ray
@@ -17,7 +18,7 @@ from rayt_python.vec3 import (
 class Material:
     def scatter(
         self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray
-    ) -> bool:
+    ) -> typing.NoReturn:
         raise NotImplementedError
 
 
@@ -29,8 +30,8 @@ class Lambertian(Material):
         self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray
     ) -> bool:
         scatter_direction = rec.normal + random_unit_vector()
-        scattered = Ray(rec.p, scatter_direction)
-        attenuation = self.albedo
+        scattered.replace(Ray(rec.p, scatter_direction))
+        attenuation.replace(self.albedo)
         return True
 
 
@@ -44,7 +45,7 @@ class Metal(Material):
     ) -> bool:
         reflected = reflect(unit_vector(r_in.direction()), rec.normal)
         scattered = Ray(rec.p, reflected + self.fuzz * random_in_unit_sphere())
-        attenuation = self.albedo
+        attenuation.replace(self.albedo)
         return dot(scattered.direction(), rec.normal) > 0
 
 
@@ -55,7 +56,7 @@ class Dielectric(Material):
     def scatter(
         self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray
     ) -> bool:
-        attenuation = Color(1.0, 1.0, 1.0)
+        attenuation.replace(Color(1.0, 1.0, 1.0))
         etai_over_etat = 1.0 / self.ref_idx if rec.front_face else self.ref_idx
         unit_direction = unit_vector(r_in.direction())
         cos_theta = min(dot(-unit_direction, rec.normal), 1.0)
@@ -73,7 +74,7 @@ class Dielectric(Material):
             return True
 
         refracted = refract(unit_direction, rec.normal, etai_over_etat)
-        scattered = Ray(rec.p, refracted)
+        scattered.replace(Ray(rec.p, refracted))
         return True
 
 

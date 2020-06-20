@@ -14,9 +14,9 @@ from rayt_python.vec3 import Color, Point3, Vec3, dot, unit_vector
 
 def hit_sphere(center: Point3, radius: float, ray: Ray) -> float:
     oc = ray.origin() - center
-    a = ray.direction().length_squared()
+    a = ray.direction().length_squared
     half_b = dot(oc, ray.direction())
-    c = oc.length_squared() - radius * radius
+    c = oc.length_squared - radius * radius
     discriminant = half_b * half_b - a * c
     return -1.0 if discriminant < 0 else (-half_b - math.sqrt(discriminant)) / a
 
@@ -49,7 +49,7 @@ def random_scene() -> HittableList:
             choose_mat = random_double()
             center = Point3(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double())
 
-            if (center - Point3(4, 0.2, 0)).length() > 0.9:
+            if (center - Point3(4, 0.2, 0)).length > 0.9:
                 if choose_mat < 0.8:
                     # diffuse
                     albedo = Color.random() * Color.random()

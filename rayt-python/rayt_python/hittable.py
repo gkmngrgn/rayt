@@ -1,7 +1,8 @@
+import typing
 from dataclasses import dataclass
 
 from rayt_python.ray import Ray
-from rayt_python.vec3 import Point3, Vec3
+from rayt_python.vec3 import Point3, Vec3, dot
 
 
 @dataclass
@@ -25,5 +26,7 @@ class HitRecord:
 
 
 class Hittable:
-    def hit(self, ray: Ray, t_min: float, t_max: float, rec: HitRecord) -> bool:
+    def hit(
+        self, ray: Ray, t_min: float, t_max: float, rec: HitRecord
+    ) -> typing.NoReturn:
         raise NotImplementedError
