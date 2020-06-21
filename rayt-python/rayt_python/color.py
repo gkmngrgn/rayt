@@ -10,8 +10,8 @@ def write_color(pixel_color: Color, samples_per_pixel: int) -> None:
     def color_(c: float) -> int:
         return int(255.999 * clamp(math.sqrt(scale * c), 0.0, 0.999))
 
-    r = color_(pixel_color.x())
-    g = color_(pixel_color.y())
-    b = color_(pixel_color.z())
+    r = color_(pixel_color.x)
+    g = color_(pixel_color.y)
+    b = color_(pixel_color.z)
 
     print(f"{r} {g} {b}")

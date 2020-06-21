@@ -1,17 +1,18 @@
 import typing
 from dataclasses import dataclass
 
+from rayt_python.material import Material
 from rayt_python.ray import Ray
 from rayt_python.vec3 import Point3, Vec3, dot
 
 
 @dataclass
 class HitRecord:
-    p: Point3
-    normal: Vec3
-    material: "rayt_python.material.Material"
-    t: float
-    front_face: bool
+    p: Point3 = Point3(0, 0, 0)
+    normal: Vec3 = Vec3(0, 0, 0)
+    material: Material = Material()
+    t: float = 0.0
+    front_face: bool = False
 
     def replace(self, rec: "HitRecord") -> None:
         self.p = rec.p

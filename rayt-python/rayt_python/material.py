@@ -1,7 +1,6 @@
 import math
 import typing
 
-from rayt_python.hittable import HitRecord
 from rayt_python.ray import Ray
 from rayt_python.utils import random_double
 from rayt_python.vec3 import (
@@ -14,10 +13,13 @@ from rayt_python.vec3 import (
     unit_vector,
 )
 
+if typing.TYPE_CHECKING:
+    from rayt_python.hittable import HitRecord
+
 
 class Material:
     def scatter(
-        self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray
+        self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
     ) -> typing.NoReturn:
         raise NotImplementedError
 
@@ -27,7 +29,7 @@ class Lambertian(Material):
         self.albedo = albedo
 
     def scatter(
-        self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray
+        self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
     ) -> bool:
         scatter_direction = rec.normal + random_unit_vector()
         scattered.replace(Ray(rec.p, scatter_direction))
@@ -41,7 +43,7 @@ class Metal(Material):
         self.fuzz = f if f < 1 else 1
 
     def scatter(
-        self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray
+        self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
     ) -> bool:
         reflected = reflect(unit_vector(r_in.direction()), rec.normal)
         scattered = Ray(rec.p, reflected + self.fuzz * random_in_unit_sphere())
@@ -54,7 +56,7 @@ class Dielectric(Material):
         self.ref_idx = ri
 
     def scatter(
-        self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray
+        self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
     ) -> bool:
         attenuation.replace(Color(1.0, 1.0, 1.0))
         etai_over_etat = 1.0 / self.ref_idx if rec.front_face else self.ref_idx
