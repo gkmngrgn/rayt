@@ -31,8 +31,8 @@ class Lambertian(Material):
         self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
     ) -> bool:
         scatter_direction = rec.normal + random_unit_vector()
-        scattered.replace(Ray(rec.p, scatter_direction))
-        attenuation.replace(self.albedo)
+        scattered.update(origin=rec.p, direction=scatter_direction)
+        attenuation.update(*self.albedo.e)
         return True
 
 
@@ -44,10 +44,10 @@ class Metal(Material):
     def scatter(
         self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
     ) -> bool:
-        reflected = reflect(unit_vector(r_in.direction()), rec.normal)
-        scattered = Ray(rec.p, reflected + self.fuzz * random_in_unit_sphere())
-        attenuation.replace(self.albedo)
-        return dot(scattered.direction(), rec.normal) > 0
+        reflected = reflect(unit_vector(r_in.direction), rec.normal)
+        scattered = Ray(rec.p, reflected + random_in_unit_sphere() * self.fuzz)
+        attenuation.update(*self.albedo.e)
+        return dot(scattered.direction, rec.normal) > 0
 
 
 class Dielectric(Material):
@@ -57,11 +57,11 @@ class Dielectric(Material):
     def scatter(
         self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
     ) -> bool:
-        attenuation.replace(Color(1.0, 1.0, 1.0))
+        attenuation.update(e0=1.0, e1=1.0, e2=1.0)
         etai_over_etat = 1.0 / self.ref_idx if rec.front_face else self.ref_idx
-        unit_direction = unit_vector(r_in.direction())
+        unit_direction = unit_vector(r_in.direction)
         cos_theta = min(dot(-unit_direction, rec.normal), 1.0)
-        sin_theta = pow(1.0 - cos_theta * cos_theta, 0.5)
+        sin_theta = pow(1.0 - pow(cos_theta, 2), 0.5)
 
         if etai_over_etat * sin_theta > 1.0:
             reflected = reflect(unit_direction, rec.normal)
@@ -75,7 +75,7 @@ class Dielectric(Material):
             return True
 
         refracted = refract(unit_direction, rec.normal, etai_over_etat)
-        scattered.replace(Ray(rec.p, refracted))
+        scattered.update(origin=rec.p, direction=refracted)
         return True
 
 

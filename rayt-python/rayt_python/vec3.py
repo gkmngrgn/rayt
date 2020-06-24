@@ -1,3 +1,4 @@
+import math
 import typing
 
 from rayt_python.utils import random_double
@@ -18,11 +19,14 @@ class Vec3:
         )
 
     def __mul__(self, other: typing.Union["Vec3", float]) -> "Vec3":
-        if isinstance(other, float):
+        if isinstance(other, (float, int)):
             o = (other, other, other)
         else:
             o = other.e
         return Vec3(self.e[0] * o[0], self.e[1] * o[1], self.e[2] * o[2])
+
+    def __neg__(self) -> "Vec3":
+        return Vec3(-self.e[0], -self.e[1], -self.e[2])
 
     def __truediv__(self, other: typing.Union["Vec3", float, int]) -> "Vec3":
         if isinstance(other, (float, int)):
@@ -60,13 +64,19 @@ class Vec3:
         # TODO: same problem here. It's a cpp const method.
         return pow(self.e[0], 2) + pow(self.e[1], 2) + pow(self.e[2], 2)
 
+    def update(self, e0: float, e1: float, e2: float) -> None:
+        self.e = (e0, e1, e2)
+
 
 def dot(u: Vec3, v: Vec3) -> float:
     return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] + v.e[2]
 
 
 def random_unit_vector() -> Vec3:
-    pass
+    a = random_double(0.0, 2 * math.pi)
+    z = random_double(-1, 1)
+    r = pow(1 - pow(z, 2), 0.5)
+    return Vec3(r * math.cos(a), r * math.sin(a), z)
 
 
 def unit_vector(v: Vec3) -> Vec3:  # TODO: inline function
@@ -96,7 +106,7 @@ def random_in_unit_sphere() -> Vec3:
 
 
 def reflect(v: Vec3, n: Vec3) -> Vec3:
-    return v - 2 * dot(v, n) * n
+    return v - n * dot(v, n) * 2
 
 
 def refract(uv: Vec3, n: Vec3, etai_over_etat) -> Vec3:
