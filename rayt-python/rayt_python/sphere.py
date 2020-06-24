@@ -1,5 +1,3 @@
-import math
-
 from rayt_python.hittable import HitRecord, Hittable
 from rayt_python.material import Material
 from rayt_python.ray import Ray
@@ -20,7 +18,7 @@ class Sphere(Hittable):
         discriminant = half_b * half_b - a * c
 
         if discriminant > 0:
-            root = math.sqrt(discriminant)
+            root = pow(discriminant, 0.5)
             temp = (-half_b - root) / a
             if temp < t_max and temp > t_min:
                 rec.t = temp

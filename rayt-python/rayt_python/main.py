@@ -13,26 +13,26 @@ from rayt_python.vec3 import Color, Point3, Vec3, dot, unit_vector
 
 
 def hit_sphere(center: Point3, radius: float, ray: Ray) -> float:
-    oc = ray.origin() - center
-    a = ray.direction().length_squared
-    half_b = dot(oc, ray.direction())
+    oc = ray.origin - center
+    a = ray.direction.length_squared
+    half_b = dot(oc, ray.direction)
     c = oc.length_squared - radius * radius
-    discriminant = half_b * half_b - a * c
-    return -1.0 if discriminant < 0 else (-half_b - math.sqrt(discriminant)) / a
+    discriminant = pow(half_b, 2) - a * c
+    return -1.0 if discriminant < 0 else (-half_b - pow(discriminant, 0.5)) / a
 
 
 def ray_color(ray: Ray, world: Hittable, depth: int) -> Color:
     if depth <= 0:
-        return Color(0, 0, 0)
+        return Color(0.0, 0.0, 0.0)
 
     rec = HitRecord()
 
     if world.hit(ray, 0.001, math.inf, rec):
         scattered = Ray()
-        attenuation = Color()
+        attenuation = Color(0.0, 0.0, 0.0)
         if rec.material.scatter(ray, rec, attenuation, scattered):
             return attenuation * ray_color(scattered, world, depth - 1)
-        return Color(0, 0, 0)
+        return Color(0.0, 0.0, 0.0)
 
     unit_direction = unit_vector(ray.direction)
     t = 0.5 * (unit_direction.y + 1.0)
@@ -66,6 +66,15 @@ def random_scene() -> HittableList:
                     sphere_material = Dielectric(1.5)
                     world.add(Sphere(center, 0.2, sphere_material))
 
+    material_1 = Dielectric(1.5)
+    world.add(Sphere(Point3(0, 1, 0), 1.0, material_1))
+
+    material_2 = Lambertian(Color(0.4, 0.2, 0.1))
+    world.add(Sphere(Point3(-4, 1, 0), 1.0, material_2))
+
+    material_3 = Metal(Color(0.7, 0.6, 0.5), 0.0)
+    world.add(Sphere(Point3(4, 1, 0), 1.0, material_3))
+
     return world
 
 
@@ -89,12 +98,12 @@ def main() -> None:
     cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
 
     for j in range(image_height - 1, -1, -1):
-        print(f"\rScanlines remaining: {j}", file=sys.stderr, end="")
+        print(f"\rScanlines remaining: {j}", file=sys.stderr, end="", flush=True)
 
-        for i in range(image_width):
-            pixel_color = Color()
+        for i in range(1, image_width + 1):
+            pixel_color = Color(0.0, 0.0, 0.0)
 
-            for s in range(samples_per_pixel):
+            for s in range(1, samples_per_pixel + 1):
                 u = (i + random_double()) / (image_width - 1)
                 v = (j + random_double()) / (image_height - 1)
                 ray = cam.get_ray(u, v)

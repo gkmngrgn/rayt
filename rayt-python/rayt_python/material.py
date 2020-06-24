@@ -1,4 +1,3 @@
-import math
 import typing
 
 from rayt_python.ray import Ray
@@ -62,7 +61,7 @@ class Dielectric(Material):
         etai_over_etat = 1.0 / self.ref_idx if rec.front_face else self.ref_idx
         unit_direction = unit_vector(r_in.direction())
         cos_theta = min(dot(-unit_direction, rec.normal), 1.0)
-        sin_theta = math.sqrt(1.0 - cos_theta * cos_theta)
+        sin_theta = pow(1.0 - cos_theta * cos_theta, 0.5)
 
         if etai_over_etat * sin_theta > 1.0:
             reflected = reflect(unit_direction, rec.normal)
