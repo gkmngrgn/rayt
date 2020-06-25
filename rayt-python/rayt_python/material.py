@@ -17,9 +17,7 @@ if typing.TYPE_CHECKING:
 
 
 class Material:
-    def scatter(
-        self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
-    ) -> typing.NoReturn:
+    def scatter(self, r_in: Ray, rec: "HitRecord") -> typing.NoReturn:
         raise NotImplementedError
 
 
@@ -28,12 +26,11 @@ class Lambertian(Material):
         self.albedo = albedo
 
     def scatter(
-        self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
-    ) -> bool:
+        self, r_in: Ray, rec: "HitRecord"
+    ) -> typing.Union[typing.Tuple[Ray, Color], None]:
         scatter_direction = rec.normal + random_unit_vector()
-        scattered.update(origin=rec.p, direction=scatter_direction)
-        attenuation.update(*self.albedo.e)
-        return True
+        scattered = Ray(origin=rec.p, direction=scatter_direction)
+        return scattered, self.albedo
 
 
 class Metal(Material):
@@ -42,12 +39,13 @@ class Metal(Material):
         self.fuzz = f if f < 1 else 1
 
     def scatter(
-        self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
-    ) -> bool:
+        self, r_in: Ray, rec: "HitRecord"
+    ) -> typing.Union[typing.Tuple[Ray, Color], None]:
         reflected = reflect(unit_vector(r_in.direction), rec.normal)
         scattered = Ray(rec.p, reflected + self.fuzz * random_in_unit_sphere())
-        attenuation.update(*self.albedo.e)
-        return dot(scattered.direction, rec.normal) > 0
+        if dot(scattered.direction, rec.normal) > 0:
+            return scattered, self.albedo
+        return None, None
 
 
 class Dielectric(Material):
@@ -55,9 +53,9 @@ class Dielectric(Material):
         self.ref_idx = ri
 
     def scatter(
-        self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
-    ) -> bool:
-        attenuation.update(e0=1.0, e1=1.0, e2=1.0)
+        self, r_in: Ray, rec: "HitRecord"
+    ) -> typing.Union[typing.Tuple[Ray, Color], None]:
+        attenuation = Color(1.0, 1.0, 1.0)
         etai_over_etat = 1.0 / self.ref_idx if rec.front_face is True else self.ref_idx
         unit_direction = unit_vector(r_in.direction)
         cos_theta = min(dot(-unit_direction, rec.normal), 1.0)
@@ -66,17 +64,17 @@ class Dielectric(Material):
         if abs(etai_over_etat * sin_theta) > 1.0:
             reflected = reflect(unit_direction, rec.normal)
             scattered = Ray(rec.p, reflected)
-            return True
+            return scattered, attenuation
 
         reflected_prob = schlick(cos_theta, etai_over_etat)
         if random_double() < reflected_prob:
             reflected = reflect(unit_direction, rec.normal)
             scattered = Ray(rec.p, reflected)
-            return True
+            return scattered, attenuation
 
         refracted = refract(unit_direction, rec.normal, etai_over_etat)
-        scattered.update(origin=rec.p, direction=refracted)
-        return True
+        scattered = Ray(origin=rec.p, direction=refracted)
+        return scattered, attenuation
 
 
 def schlick(cosine: float, ref_idx: float) -> float:

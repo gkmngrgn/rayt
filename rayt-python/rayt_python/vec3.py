@@ -67,9 +67,6 @@ class Vec3:
         # TODO: same problem here. It's a cpp const method.
         return pow(self.e[0], 2) + pow(self.e[1], 2) + pow(self.e[2], 2)
 
-    def update(self, e0: float, e1: float, e2: float) -> None:
-        self.e = (e0, e1, e2)
-
 
 def dot(u: Vec3, v: Vec3) -> float:
     return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] + v.e[2]

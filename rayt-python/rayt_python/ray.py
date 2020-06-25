@@ -6,9 +6,5 @@ class Ray:
         self.origin = origin
         self.direction = direction
 
-    def update(self, origin: Point3, direction: Vec3) -> None:
-        self.origin = origin
-        self.direction = direction
-
     def at(self, t: float) -> Point3:
         return self.origin + self.direction * t
