@@ -14,8 +14,8 @@ class Sphere(Hittable):
         oc = r.origin - self.center
         a = r.direction.length_squared
         half_b = dot(oc, r.direction)
-        c = oc.length_squared - self.radius * self.radius
-        discriminant = half_b * half_b - a * c
+        c = oc.length_squared - pow(self.radius, 2)
+        discriminant = pow(half_b, 2) - a * c
 
         if discriminant > 0:
             root = pow(discriminant, 0.5)

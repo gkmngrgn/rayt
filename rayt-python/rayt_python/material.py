@@ -45,7 +45,7 @@ class Metal(Material):
         self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
     ) -> bool:
         reflected = reflect(unit_vector(r_in.direction), rec.normal)
-        scattered = Ray(rec.p, reflected + random_in_unit_sphere() * self.fuzz)
+        scattered = Ray(rec.p, reflected + self.fuzz * random_in_unit_sphere())
         attenuation.update(*self.albedo.e)
         return dot(scattered.direction, rec.normal) > 0
 
@@ -58,12 +58,12 @@ class Dielectric(Material):
         self, r_in: Ray, rec: "HitRecord", attenuation: Color, scattered: Ray
     ) -> bool:
         attenuation.update(e0=1.0, e1=1.0, e2=1.0)
-        etai_over_etat = 1.0 / self.ref_idx if rec.front_face else self.ref_idx
+        etai_over_etat = 1.0 / self.ref_idx if rec.front_face is True else self.ref_idx
         unit_direction = unit_vector(r_in.direction)
         cos_theta = min(dot(-unit_direction, rec.normal), 1.0)
         sin_theta = pow(1.0 - pow(cos_theta, 2), 0.5)
 
-        if etai_over_etat * sin_theta > 1.0:
+        if abs(etai_over_etat * sin_theta) > 1.0:
             reflected = reflect(unit_direction, rec.normal)
             scattered = Ray(rec.p, reflected)
             return True

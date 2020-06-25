@@ -25,6 +25,9 @@ class Vec3:
             o = other.e
         return Vec3(self.e[0] * o[0], self.e[1] * o[1], self.e[2] * o[2])
 
+    def __rmul__(self, other: typing.Union["Vec3", float]) -> "Vec3":
+        return self.__mul__(other)
+
     def __neg__(self) -> "Vec3":
         return Vec3(-self.e[0], -self.e[1], -self.e[2])
 
@@ -94,19 +97,21 @@ def cross(u: Vec3, v: Vec3) -> Vec3:  # TODO: inline function
 def random_in_unit_disk() -> Vec3:
     while True:
         p = Vec3(random_double(-1, 1), random_double(-1, 1), 0)
-        if p.length_squared < 1:
-            return p
+        if p.length_squared >= 1:
+            continue
+        return p
 
 
 def random_in_unit_sphere() -> Vec3:
     while True:
         p = Vec3.random(-1, 1)
-        if p.length_squared < 1:
-            return p
+        if p.length_squared >= 1:
+            continue
+        return p
 
 
 def reflect(v: Vec3, n: Vec3) -> Vec3:
-    return v - n * dot(v, n) * 2
+    return v - 2 * dot(v, n) * n
 
 
 def refract(uv: Vec3, n: Vec3, etai_over_etat) -> Vec3:

@@ -23,6 +23,6 @@ class HittableList:
             if h_table.hit(ray, t_min, closest_so_far, temp_rec):
                 hit_anything = True
                 closest_so_far = temp_rec.t
-                rec.replace(temp_rec)
+                rec.update(temp_rec)
 
         return hit_anything

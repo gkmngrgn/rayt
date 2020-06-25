@@ -14,7 +14,7 @@ class HitRecord:
     t: float = 0.0
     front_face: bool = False
 
-    def replace(self, rec: "HitRecord") -> None:
+    def update(self, rec: "HitRecord") -> None:
         self.p = rec.p
         self.normal = rec.normal
         self.material = rec.material
