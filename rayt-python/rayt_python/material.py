@@ -61,23 +61,22 @@ class Dielectric(Material):
         cos_theta = min(dot(-unit_direction, rec.normal), 1.0)
         sin_theta = pow(1.0 - pow(cos_theta, 2), 0.5)
 
-        if abs(etai_over_etat * sin_theta) > 1.0:
+        if etai_over_etat * sin_theta > 1.0:
             reflected = reflect(unit_direction, rec.normal)
             scattered = Ray(rec.p, reflected)
             return scattered, attenuation
 
-        reflected_prob = schlick(cos_theta, etai_over_etat)
-        if random_double() < reflected_prob:
+        reflect_prob = schlick(cos_theta, etai_over_etat)
+        if random_double() < reflect_prob:
             reflected = reflect(unit_direction, rec.normal)
             scattered = Ray(rec.p, reflected)
             return scattered, attenuation
 
         refracted = refract(unit_direction, rec.normal, etai_over_etat)
-        scattered = Ray(origin=rec.p, direction=refracted)
+        scattered = Ray(rec.p, refracted)
         return scattered, attenuation
 
 
 def schlick(cosine: float, ref_idx: float) -> float:
-    r0 = (1 - ref_idx) / (1 + ref_idx)
-    r0 = pow(r0, 2)
+    r0 = pow((1 - ref_idx) / (1 + ref_idx), 2)
     return r0 + (1 - r0) * pow((1 - cosine), 5)

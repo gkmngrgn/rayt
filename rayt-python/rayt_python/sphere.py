@@ -5,7 +5,7 @@ from rayt_python.vec3 import Point3, dot
 
 
 class Sphere(Hittable):
-    def __init__(self, cen: Point3 = None, r: float = None, m: Material = None) -> None:
+    def __init__(self, cen: Point3, r: float, m: Material) -> None:
         self.center = cen
         self.radius = r
         self.material = m
@@ -23,9 +23,7 @@ class Sphere(Hittable):
             if temp < t_max and temp > t_min:
                 rec.t = temp
                 rec.p = r.at(rec.t)
-                rec.normal = (rec.p - self.center) / self.radius
-                outward_normal = (rec.p - self.center) / self.radius  # TODO: why?
-                rec.set_face_normal(r, outward_normal)
+                rec.set_face_normal(r, (rec.p - self.center) / self.radius)
                 rec.material = self.material
                 return True
 
@@ -33,11 +31,7 @@ class Sphere(Hittable):
             if t_min < temp < t_max:
                 rec.t = temp
                 rec.p = r.at(rec.t)
-                rec.normal = (
-                    rec.p - self.center
-                ) / self.radius  # TODO: I'm repeating again and again
-                outward_normal = (rec.p - self.center) / self.radius
-                rec.set_face_normal(r, outward_normal)
+                rec.set_face_normal(r, (rec.p - self.center) / self.radius)
                 rec.material = self.material
                 return True
 
