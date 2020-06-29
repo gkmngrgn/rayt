@@ -97,7 +97,7 @@ def main() -> None:
     cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
 
     for j in range(image_height - 1, -1, -1):
-        print(f"\rScanlines remaining: {j}", file=sys.stderr, end="", flush=True)
+        print(f"\rScanlines remaining: {j}", file=sys.stderr, end=" ", flush=True)
 
         for i in range(1, image_width + 1):
             pixel_color = Color(0.0, 0.0, 0.0)

@@ -3,11 +3,11 @@ import random
 
 
 def random_double(min: float = 0.0, max: float = 1.0) -> float:
-    return random.uniform(min, max)
+    return min + (max - min) * random.random()
 
 
 def degrees_to_radians(degrees: float) -> float:
-    return degrees * math.pi / 100
+    return degrees * math.pi / 180
 
 
 def clamp(x: float, min: float, max: float) -> float:

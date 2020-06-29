@@ -18,14 +18,14 @@ class Vec3:
             self.e[0] - other.e[0], self.e[1] - other.e[1], self.e[2] - other.e[2]
         )
 
-    def __mul__(self, other: typing.Union["Vec3", float]) -> "Vec3":
+    def __mul__(self, other: typing.Union["Vec3", float, int]) -> "Vec3":
         if isinstance(other, (float, int)):
-            o = (other, other, other)
-        else:
-            o = other.e
-        return Vec3(self.e[0] * o[0], self.e[1] * o[1], self.e[2] * o[2])
+            return Vec3(self.e[0] * other, self.e[1] * other, self.e[2] * other)
+        return Vec3(
+            self.e[0] * other.e[0], self.e[1] * other.e[1], self.e[2] * other.e[2]
+        )
 
-    def __rmul__(self, other: typing.Union["Vec3", float]) -> "Vec3":
+    def __rmul__(self, other: typing.Union["Vec3", float, int]) -> "Vec3":
         return self.__mul__(other)
 
     def __neg__(self) -> "Vec3":
@@ -33,10 +33,10 @@ class Vec3:
 
     def __truediv__(self, other: typing.Union["Vec3", float, int]) -> "Vec3":
         if isinstance(other, (float, int)):
-            o = (other, other, other)
-        else:
-            o = other.e
-        return Vec3(self.e[0] / o[0], self.e[1] / o[1], self.e[2] / o[2])
+            return self.__mul__(1 / other)
+        return Vec3(
+            self.e[0] / other.e[0], self.e[1] / other.e[1], self.e[2] / other.e[2]
+        )
 
     @classmethod
     def random(cls, min: float = 0.0, max: float = 1.0) -> "Vec3":
@@ -69,7 +69,7 @@ class Vec3:
 
 
 def dot(u: Vec3, v: Vec3) -> float:
-    return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] + v.e[2]
+    return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2]
 
 
 def random_unit_vector() -> Vec3:
@@ -114,7 +114,7 @@ def reflect(v: Vec3, n: Vec3) -> Vec3:
 def refract(uv: Vec3, n: Vec3, etai_over_etat) -> Vec3:
     cos_theta = dot(-uv, n)
     r_out_parallel = etai_over_etat * (uv + cos_theta * n)
-    r_out_perp = -pow(1.0 - r_out_parallel.length_squared, 0.5) * n
+    r_out_perp = abs(pow(1.0 - r_out_parallel.length_squared, 0.5)) * n
     return r_out_parallel + r_out_perp
 
 
