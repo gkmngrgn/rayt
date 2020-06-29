@@ -1,10 +1,12 @@
 # RAYT
 
-Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.github.io/) trilogy. The goal is to have the same output in three languages; C++, Python, and Rust. Current status is:
+Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.github.io/) trilogy. The goal is to have the same output in three languages; C++, Python, and Rust.
 
 ![](assets/image.png)
 
 ## Build C++ Project
+
+![](assets/rayt-cpp.png)
 
 CMake will generate makefiles for your operating system. If you didn't use CMake before, take a look at the documentation to learn how to build a C++ project. Example usage:
 
@@ -21,6 +23,8 @@ bin\rayt-cpp.exe > image.ppm
 **TODO:**
 
 ## Build Python Project
+
+![](assets/rayt-python.png)
 
 I tested the project using the latest stable version of Python (3.8). Use poetry to manage commands and dependencies.
 

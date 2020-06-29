@@ -66,13 +66,13 @@ def random_scene() -> HittableList:
                     world.add(Sphere(center, 0.2, sphere_material))
 
     material_1 = Dielectric(1.5)
-    world.add(Sphere(Point3(0, 1, 0), 1.0, material_1))
+    world.add(Sphere(Point3(0.0, 1.0, 0.0), 1.0, material_1))
 
     material_2 = Lambertian(Color(0.4, 0.2, 0.1))
-    world.add(Sphere(Point3(-4, 1, 0), 1.0, material_2))
+    world.add(Sphere(Point3(-4.0, 1.0, 0.0), 1.0, material_2))
 
     material_3 = Metal(Color(0.7, 0.6, 0.5), 0.0)
-    world.add(Sphere(Point3(4, 1, 0), 1.0, material_3))
+    world.add(Sphere(Point3(4.0, 1.0, 0.0), 1.0, material_3))
 
     return world
 
@@ -102,7 +102,7 @@ def main() -> None:
         for i in range(1, image_width + 1):
             pixel_color = Color(0.0, 0.0, 0.0)
 
-            for s in range(1, samples_per_pixel + 1):
+            for _ in range(1, samples_per_pixel + 1):
                 u = (i + random_double()) / (image_width - 1)
                 v = (j + random_double()) / (image_height - 1)
                 ray = cam.get_ray(u, v)
