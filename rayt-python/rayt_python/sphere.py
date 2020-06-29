@@ -1,3 +1,5 @@
+import typing
+
 from rayt_python.hittable import HitRecord, Hittable
 from rayt_python.material import Material
 from rayt_python.ray import Ray
@@ -10,7 +12,13 @@ class Sphere(Hittable):
         self.radius = r
         self.material = m
 
-    def hit(self, r: Ray, t_min: float, t_max: float, rec: HitRecord) -> bool:
+    def create_rec(self, ray: Ray, t: float) -> HitRecord:
+        p = ray.at(t)
+        rec = HitRecord(p=p, t=t, material=self.material)
+        rec.set_face_normal(ray, (p - self.center) / self.radius)
+        return rec
+
+    def hit(self, r: Ray, t_min: float, t_max: float) -> typing.Union[HitRecord, None]:
         oc = r.origin - self.center
         a = r.direction.length_squared
         half_b = dot(oc, r.direction)
@@ -21,18 +29,10 @@ class Sphere(Hittable):
             root = pow(discriminant, 0.5)
             temp = (-half_b - root) / a
             if temp < t_max and temp > t_min:
-                rec.t = temp
-                rec.p = r.at(rec.t)
-                rec.set_face_normal(r, (rec.p - self.center) / self.radius)
-                rec.material = self.material
-                return True
+                return self.create_rec(r, temp)
 
             temp = (-half_b + root) / a
             if t_min < temp < t_max:
-                rec.t = temp
-                rec.p = r.at(rec.t)
-                rec.set_face_normal(r, (rec.p - self.center) / self.radius)
-                rec.material = self.material
-                return True
+                return self.create_rec(r, temp)
 
-        return False
+        return None

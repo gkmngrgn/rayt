@@ -14,15 +14,14 @@ class HittableList:
     def clear(self):
         self.h_tables.clear()
 
-    def hit(self, ray: Ray, t_min: float, t_max: float, rec: HitRecord) -> bool:
-        temp_rec = HitRecord()
-        hit_anything = False
+    def hit(self, r: Ray, t_min: float, t_max: float) -> typing.Union[HitRecord, None]:
         closest_so_far = t_max
+        rec = None
 
         for h_table in self.h_tables:
-            if h_table.hit(ray, t_min, closest_so_far, temp_rec):
-                hit_anything = True
+            temp_rec = h_table.hit(r, t_min, closest_so_far)
+            if temp_rec is not None:
                 closest_so_far = temp_rec.t
-                rec.update(temp_rec)
+                rec = temp_rec
 
-        return hit_anything
+        return rec
