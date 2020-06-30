@@ -111,10 +111,10 @@ def reflect(v: Vec3, n: Vec3) -> Vec3:
     return v - 2 * dot(v, n) * n
 
 
-def refract(uv: Vec3, n: Vec3, etai_over_etat) -> Vec3:
+def refract(uv: Vec3, n: Vec3, etai_over_etat: float) -> Vec3:
     cos_theta = dot(-uv, n)
     r_out_parallel = etai_over_etat * (uv + cos_theta * n)
-    r_out_perp = abs(pow(1.0 - r_out_parallel.length_squared, 0.5)) * n
+    r_out_perp = -pow(1.0 - r_out_parallel.length_squared, 0.5) * n
     return r_out_parallel + r_out_perp
 
 

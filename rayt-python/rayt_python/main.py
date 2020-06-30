@@ -37,7 +37,7 @@ def ray_color(ray: Ray, world: Hittable, depth: int) -> Color:
         else:
             unit_direction = unit_vector(ray.direction)
             t = 0.5 * (unit_direction.y + 1.0)
-            r_color *= Color(1.0, 1.0, 1.0) * (1.0 - t) + Color(0.5, 0.7, 1.0) * t
+            r_color *= (Color(1.0, 1.0, 1.0) * (1.0 - t) + Color(0.5, 0.7, 1.0) * t)
             break
 
     return r_color

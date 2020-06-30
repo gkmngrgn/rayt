@@ -60,20 +60,14 @@ class Dielectric(Material):
         unit_direction = unit_vector(r_in.direction)
         cos_theta = min(dot(-unit_direction, rec.normal), 1.0)
         sin_theta = pow(1.0 - pow(cos_theta, 2), 0.5)
-
-        if etai_over_etat * sin_theta > 1.0:
-            reflected = reflect(unit_direction, rec.normal)
-            scattered = Ray(rec.p, reflected)
-            return scattered, attenuation
-
         reflect_prob = schlick(cos_theta, etai_over_etat)
-        if random_double() < reflect_prob:
-            reflected = reflect(unit_direction, rec.normal)
-            scattered = Ray(rec.p, reflected)
-            return scattered, attenuation
 
-        refracted = refract(unit_direction, rec.normal, etai_over_etat)
-        scattered = Ray(rec.p, refracted)
+        if etai_over_etat * sin_theta > 1.0 or random_double() < reflect_prob:
+            direction = reflect(unit_direction, rec.normal)
+        else:
+            direction = refract(unit_direction, rec.normal, etai_over_etat)
+
+        scattered = Ray(rec.p, direction)
         return scattered, attenuation
 
 
