@@ -3,7 +3,7 @@ import sys
 
 from rayt_python.camera import Camera
 from rayt_python.color import write_color
-from rayt_python.hittable import HitRecord, Hittable
+from rayt_python.hittable import Hittable
 from rayt_python.hittable_list import HittableList
 from rayt_python.material import Dielectric, Lambertian, Metal
 from rayt_python.ray import Ray
@@ -25,16 +25,22 @@ def ray_color(ray: Ray, world: Hittable, depth: int) -> Color:
     if depth <= 0:
         return Color(0.0, 0.0, 0.0)
 
-    rec = world.hit(ray, 0.001, math.inf)
-    if rec is not None:
-        scattered, attenuation = rec.material.scatter(ray, rec)
-        if None not in (scattered, attenuation):
-            return attenuation * ray_color(scattered, world, depth - 1)
-        return Color(0.0, 0.0, 0.0)
+    r_color = Color(1.0, 1.0, 1.0)
 
-    unit_direction = unit_vector(ray.direction)
-    t = 0.5 * (unit_direction.y + 1.0)
-    return Color(1.0, 1.0, 1.0) * (1.0 - t) + Color(0.5, 0.7, 1.0) * t
+    for _ in range(depth, 0, -1):
+        if (rec := world.hit(ray, 0.001, math.inf)) is not None:
+            if None not in (scattered := rec.material.scatter(ray, rec)):
+                ray, attenuation = scattered
+                r_color *= attenuation
+            else:
+                return Color(0.0, 0.0, 0.0)
+        else:
+            unit_direction = unit_vector(ray.direction)
+            t = 0.5 * (unit_direction.y + 1.0)
+            r_color *= Color(1.0, 1.0, 1.0) * (1.0 - t) + Color(0.5, 0.7, 1.0) * t
+            break
+
+    return r_color
 
 
 def random_scene() -> HittableList:

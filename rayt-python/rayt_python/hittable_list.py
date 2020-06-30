@@ -19,8 +19,7 @@ class HittableList:
         rec = None
 
         for h_table in self.h_tables:
-            temp_rec = h_table.hit(r, t_min, closest_so_far)
-            if temp_rec is not None:
+            if (temp_rec := h_table.hit(r, t_min, closest_so_far)) is not None:
                 closest_so_far = temp_rec.t
                 rec = temp_rec
 
