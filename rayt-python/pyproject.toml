@@ -3,6 +3,7 @@ name = "rayt-python"
 version = "0.1.0"
 description = ""
 authors = ["Gökmen Görgen <gkmngrgn@gmail.com>"]
+build = "build.py"
 
 [tool.poetry.scripts]
 rayt = "rayt_python.main:main"

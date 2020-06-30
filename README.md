@@ -30,6 +30,7 @@ I tested the project using the latest stable version of Python (3.8). Use poetry
 
 ```
 cd rayt-python
+CC=clang poetry build
 poetry run rayt
 ```
 
