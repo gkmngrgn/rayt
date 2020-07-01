@@ -6,7 +6,7 @@ authors = ["Gökmen Görgen <gkmngrgn@gmail.com>"]
 build = "build.py"
 
 [tool.poetry.scripts]
-rayt = "rayt_python.main:main"
+rayt = "rayt_python.main:run"
 
 [tool.poetry.dependencies]
 python = "^3.8"

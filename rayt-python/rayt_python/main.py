@@ -1,3 +1,4 @@
+import asyncio
 import math
 import sys
 
@@ -37,7 +38,7 @@ def ray_color(ray: Ray, world: Hittable, depth: int) -> Color:
         else:
             unit_direction = unit_vector(ray.direction)
             t = 0.5 * (unit_direction.y + 1.0)
-            r_color *= (Color(1.0, 1.0, 1.0) * (1.0 - t) + Color(0.5, 0.7, 1.0) * t)
+            r_color *= Color(1.0, 1.0, 1.0) * (1.0 - t) + Color(0.5, 0.7, 1.0) * t
             break
 
     return r_color
@@ -48,27 +49,27 @@ def random_scene() -> HittableList:
     ground_material = Lambertian(albedo=Color(0.5, 0.5, 0.5))
     world.add(Sphere(Point3(0, -1000, 0), 1000, ground_material))
 
-    for a in range(-11, 11):
-        for b in range(-11, 11):
-            choose_mat = random_double()
-            center = Point3(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double())
+    # for a in range(-11, 11):
+    #     for b in range(-11, 11):
+    #         choose_mat = random_double()
+    #         center = Point3(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double())
 
-            if (center - Point3(4, 0.2, 0)).length > 0.9:
-                if choose_mat < 0.8:
-                    # diffuse
-                    albedo = Color.random() * Color.random()
-                    sphere_material = Lambertian(albedo)
-                    world.add(Sphere(center, 0.2, sphere_material))
-                elif choose_mat < 0.95:
-                    # metal
-                    albedo = Color.random(0.5, 1)
-                    fuzz = random_double(0, 0.5)
-                    sphere_material = Metal(albedo, fuzz)
-                    world.add(Sphere(center, 0.2, sphere_material))
-                else:
-                    # glass
-                    sphere_material = Dielectric(1.5)
-                    world.add(Sphere(center, 0.2, sphere_material))
+    #         if (center - Point3(4, 0.2, 0)).length > 0.9:
+    #             if choose_mat < 0.8:
+    #                 # diffuse
+    #                 albedo = Color.random() * Color.random()
+    #                 sphere_material = Lambertian(albedo)
+    #                 world.add(Sphere(center, 0.2, sphere_material))
+    #             elif choose_mat < 0.95:
+    #                 # metal
+    #                 albedo = Color.random(0.5, 1)
+    #                 fuzz = random_double(0, 0.5)
+    #                 sphere_material = Metal(albedo, fuzz)
+    #                 world.add(Sphere(center, 0.2, sphere_material))
+    #             else:
+    #                 # glass
+    #                 sphere_material = Dielectric(1.5)
+    #                 world.add(Sphere(center, 0.2, sphere_material))
 
     material_1 = Dielectric(1.5)
     world.add(Sphere(Point3(0.0, 1.0, 0.0), 1.0, material_1))
@@ -82,9 +83,25 @@ def random_scene() -> HittableList:
     return world
 
 
-def main() -> None:
+async def get_pixel_color(
+    q: asyncio.Queue,
+    image_width: int,
+    image_height: int,
+    i: int,
+    j: int,
+    max_depth: int,
+    cam: Camera,
+    world: HittableList,
+) -> Color:
+    u = (i + random_double()) / (image_width - 1)
+    v = (j + random_double()) / (image_height - 1)
+    ray = cam.get_ray(u, v)
+    return ray_color(ray, world, max_depth)
+
+
+async def main() -> None:
     aspect_ratio = 16.0 / 9.0
-    image_width = 1200
+    image_width = 300  # FIXME: should be 1200
     image_height = int(image_width / aspect_ratio)
     samples_per_pixel = 20
     max_depth = 50
@@ -100,19 +117,31 @@ def main() -> None:
     aperture = 0.1
 
     cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
+    queue = asyncio.Queue()
 
     for j in range(image_height - 1, -1, -1):
         print(f"\rScanlines remaining: {j}", file=sys.stderr, end=" ", flush=True)
 
         for i in range(1, image_width + 1):
             pixel_color = Color(0.0, 0.0, 0.0)
+            params = (queue, image_width, image_height, i, j, max_depth, cam, world)
+            tasks = [
+                asyncio.create_task(get_pixel_color(*params))
+                for _ in range(samples_per_pixel)
+            ]
+            for result in asyncio.as_completed(tasks):
+                pixel_color += await result
 
-            for _ in range(1, samples_per_pixel + 1):
-                u = (i + random_double()) / (image_width - 1)
-                v = (j + random_double()) / (image_height - 1)
-                ray = cam.get_ray(u, v)
-                pixel_color += ray_color(ray, world, max_depth)
+            # for _ in range(1, samples_per_pixel + 1):
+            #     u = (i + random_double()) / (image_width - 1)
+            #     v = (j + random_double()) / (image_height - 1)
+            #     ray = cam.get_ray(u, v)
+            #     pixel_color += ray_color(ray, world, max_depth)
 
             write_color(pixel_color, samples_per_pixel)
 
     print("\nDone.", file=sys.stderr)
+
+
+def run() -> None:
+    asyncio.run(main())
