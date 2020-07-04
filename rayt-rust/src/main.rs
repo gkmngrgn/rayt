@@ -1,5 +1,9 @@
 mod color;
 mod utils;
+mod vec3;
+
+use crate::utils::INFINITY;
+use crate::vec3::{dot, unit_vector, Color, Point3, Vec3};
 
 #[macro_use]
 extern crate itertools;
@@ -36,7 +40,7 @@ fn ray_color(r: Ray, world: Hittable, depth: usize) -> Color {
     }
 
     let unit_direction = unit_vector(r.direction());
-    let t = 0.5 * (unit_direction.y() + 1.0);
+    let t = 0.5 * (unit_direction.y + 1.0);
     (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }
 
@@ -74,9 +78,9 @@ fn main() {
     println!("P3\n{} {}\n255\n", image_width, image_height);
 
     let world = random_scene();
-    let lookfrom = Point3::new(13, 2, 3);
-    let lookat = Point3::new(0, 0, 0);
-    let vup = Vec3::new(0, 1, 0);
+    let lookfrom = Point3::new(13.0, 2.0, 3.0);
+    let lookat = Point3::new(0.0, 0.0, 0.0);
+    let vup = Vec3::new(0.0, 1.0, 0.0);
     let dist_to_focus = 10.0;
     let aperture = 0.1;
 
