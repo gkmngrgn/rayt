@@ -17,7 +17,7 @@ if typing.TYPE_CHECKING:
 
 
 class Material:
-    def scatter(self, r_in: Ray, rec: "HitRecord") -> typing.NoReturn:
+    def scatter(self, r_in: Ray, rec: "HitRecord"):
         raise NotImplementedError
 
 
@@ -40,7 +40,7 @@ class Metal(Material):
 
     def scatter(
         self, r_in: Ray, rec: "HitRecord"
-    ) -> typing.Union[typing.Tuple[Ray, Color], None]:
+    ) -> typing.Union[typing.Tuple[Ray, Color], typing.Tuple[None, None]]:
         reflected = reflect(unit_vector(r_in.direction), rec.normal)
         scattered = Ray(rec.p, reflected + self.fuzz * random_in_unit_sphere())
         if dot(scattered.direction, rec.normal) > 0:

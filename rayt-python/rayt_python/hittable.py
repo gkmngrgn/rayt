@@ -19,5 +19,5 @@ class HitRecord:
 
 
 class Hittable:
-    def hit(self, ray: Ray, t_min: float, t_max: float) -> typing.NoReturn:
+    def hit(self, ray: Ray, t_min: float, t_max: float):
         raise NotImplementedError
