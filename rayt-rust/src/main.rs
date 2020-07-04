@@ -1,3 +1,6 @@
+mod color;
+mod utils;
+
 #[macro_use]
 extern crate itertools;
 
