@@ -1,9 +1,11 @@
 import asyncio
+import itertools
 import math
 import sys
+import typing
 
 from rayt_python.camera import Camera
-from rayt_python.color import write_color
+from rayt_python.color import get_color_str, write_color
 from rayt_python.hittable import Hittable
 from rayt_python.hittable_list import HittableList
 from rayt_python.material import Dielectric, Lambertian, Metal
@@ -83,25 +85,9 @@ def random_scene() -> HittableList:
     return world
 
 
-async def get_pixel_color(
-    q: asyncio.Queue,
-    image_width: int,
-    image_height: int,
-    i: int,
-    j: int,
-    max_depth: int,
-    cam: Camera,
-    world: HittableList,
-) -> Color:
-    u = (i + random_double()) / (image_width - 1)
-    v = (j + random_double()) / (image_height - 1)
-    ray = cam.get_ray(u, v)
-    return ray_color(ray, world, max_depth)
-
-
-async def main() -> None:
+def main_ordinary() -> None:
     aspect_ratio = 16.0 / 9.0
-    image_width = 300  # FIXME: should be 1200
+    image_width = 300
     image_height = int(image_width / aspect_ratio)
     samples_per_pixel = 20
     max_depth = 50
@@ -117,31 +103,87 @@ async def main() -> None:
     aperture = 0.1
 
     cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
-    queue = asyncio.Queue()
 
     for j in range(image_height - 1, -1, -1):
         print(f"\rScanlines remaining: {j}", file=sys.stderr, end=" ", flush=True)
 
         for i in range(1, image_width + 1):
             pixel_color = Color(0.0, 0.0, 0.0)
-            params = (queue, image_width, image_height, i, j, max_depth, cam, world)
-            tasks = [
-                asyncio.create_task(get_pixel_color(*params))
-                for _ in range(samples_per_pixel)
-            ]
-            for result in asyncio.as_completed(tasks):
-                pixel_color += await result
 
-            # for _ in range(1, samples_per_pixel + 1):
-            #     u = (i + random_double()) / (image_width - 1)
-            #     v = (j + random_double()) / (image_height - 1)
-            #     ray = cam.get_ray(u, v)
-            #     pixel_color += ray_color(ray, world, max_depth)
+            for _ in range(1, samples_per_pixel + 1):
+                u = (i + random_double()) / (image_width - 1)
+                v = (j + random_double()) / (image_height - 1)
+                ray = cam.get_ray(u, v)
+                pixel_color += ray_color(ray, world, max_depth)
 
             write_color(pixel_color, samples_per_pixel)
 
     print("\nDone.", file=sys.stderr)
 
 
+async def consume(
+    i: int,
+    j: int,
+    width: int,
+    height: int,
+    max_depth: int,
+    cam: Camera,
+    world: HittableList,
+    samples_per_pixel: int,
+) -> typing.Tuple[int, int, str]:
+    def calculate_color() -> Color:
+        u = (i + random_double()) / (width - 1)
+        v = (j + random_double()) / (height - 1)
+        ray = cam.get_ray(u, v)
+        return ray_color(ray, world, max_depth)
+
+    pixel_color = sum(
+        [calculate_color() for _ in range(samples_per_pixel)],
+        start=Color(0.0, 0.0, 0.0),
+    )
+    pixel_color_str = get_color_str(pixel_color, samples_per_pixel)
+    # msg = f"\r ({j}, {i}), {pixel_color_str}"
+    # print(msg, file=sys.stderr, end=" ", flush=True)
+
+    # if img_width % (i + 1) == 0:
+    #     msg = f"\rScanlines remaining: {img_height - j}"
+    #     print(msg, file=sys.stderr, end=" ", flush=True)
+    return i, j, pixel_color_str
+
+
+async def main() -> None:
+    aspect_ratio = 16.0 / 9.0
+    img_width = 300
+    img_height = int(img_width / aspect_ratio)
+    samples_per_pixel = 20
+    max_depth = 50
+    world = random_scene()
+
+    lookfrom = Point3(13, 2, 3)
+    lookat = Point3(0, 0, 0)
+    vup = Vec3(0, 1, 0)
+    dist_to_focus = 10.0
+    aperture = 0.1
+
+    cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
+
+    coords = itertools.product(range(img_height), range(img_width))
+    colors = [[None] * img_width] * img_height
+    params = (img_width, img_height, max_depth, cam, world, samples_per_pixel)
+    consumers = [asyncio.create_task(consume(i, j, *params)) for j, i in coords]
+
+    for result in asyncio.as_completed(consumers):
+        i, j, color = await result
+        colors[j][i] = color
+
+    import ipdb
+
+    ipdb.set_trace()
+    print(f"P3\n{img_width} {img_height}\n255")
+    print("\n".join(["\n".join(c) for c in colors]))
+    print("\nDone.", file=sys.stderr)
+
+
 def run() -> None:
     asyncio.run(main())
+    # main_ordinary()

@@ -12,4 +12,5 @@ ext_modules = [Extension("rayt_python.ray_color", **ext_lib_config)]
 
 
 def build(setup_kwargs):
-    setup_kwargs.update({"ext_modules": ext_modules})
+    # setup_kwargs.update({"ext_modules": ext_modules})
+    pass
