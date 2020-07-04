@@ -4,16 +4,64 @@ mod utils;
 #[macro_use]
 extern crate itertools;
 
-fn hit_sphere() {
-    // TODO:
+fn hit_sphere(center: Point3, radius: f64, r: Ray) -> f64 {
+    let oc = r.origin() - center;
+    let a = r.direction().length_squared();
+    let half_b = dot(oc, r.direction());
+    let c = oc.length_squared() - radius.powi(2);
+    let discriminant = half_b.powi(2) - a * c;
+
+    if discriminant < 0.0 {
+        -1.0
+    } else {
+        (-half_b - f64::sqrt(discriminant)) / a
+    }
 }
 
-fn ray_color() {
-    // TODO:
+fn ray_color(r: Ray, world: Hittable, depth: usize) -> Color {
+    if depth <= 0 {
+        return Color::new(0.0, 0.0, 0.0);
+    }
+
+    let rec;
+
+    if world.hit(r, 0.001, INFINITY, rec) {
+        let scattered;
+        let attenuation;
+        if rec.material.scatter(r, rec, attenuation, scattered) {
+            // FIXME: don't use recursive here. take a look at the Python code.
+            return attenuation * ray_color(scattered, world, depth - 1);
+        }
+        return Color::new(0.0, 0.0, 0.0);
+    }
+
+    let unit_direction = unit_vector(r.direction());
+    let t = 0.5 * (unit_direction.y() + 1.0);
+    (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }
 
 fn random_scene() {
-    // TODO:
+    let world;
+
+    let ground_material = Lambertian::new(Color::new(0.5, 0.5, 0.5));
+    world.add(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        ground_material,
+    ));
+
+    // TODO: add small materials here.
+
+    let material_1 = Dielectric::new(1.5);
+    world.add(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, material_1));
+
+    let material_2 = Lambertian::new(Color::new(0.4, 0.2, 0.1));
+    world.add(Sphere::new(Point3(-4.0, 1.0, 0.0), 1.0, material_2));
+
+    let material_3 = Metal::new(Color::new(0.7, 0.6, 0.5), 0.0);
+    world.add(Sphere::new(Point3(4.0, 1.0, 0.0), 1.0, material_3));
+
+    world
 }
 
 fn main() {
