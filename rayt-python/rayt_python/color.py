@@ -2,7 +2,7 @@ from rayt_python.utils import clamp
 from rayt_python.vec3 import Color
 
 
-def get_color_str(pixel_color: Color, samples_per_pixel: int) -> None:
+def get_color_str(pixel_color: Color, samples_per_pixel: int) -> str:
     scale = 1.0 / samples_per_pixel
     get_color = lambda c: int(255.999 * clamp(pow(scale * c, 0.5), 0.0, 0.999))
     r = get_color(pixel_color.x)

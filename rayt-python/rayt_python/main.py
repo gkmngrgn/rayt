@@ -130,7 +130,7 @@ async def consume(
     cam: Camera,
     world: HittableList,
     samples_per_pixel: int,
-) -> typing.Tuple[int, int, str]:
+) -> str:
     def calculate_color() -> Color:
         u = (i + random_double()) / (width - 1)
         v = (j + random_double()) / (height - 1)
@@ -141,14 +141,11 @@ async def consume(
         [calculate_color() for _ in range(samples_per_pixel)],
         start=Color(0.0, 0.0, 0.0),
     )
-    pixel_color_str = get_color_str(pixel_color, samples_per_pixel)
-    # msg = f"\r ({j}, {i}), {pixel_color_str}"
-    # print(msg, file=sys.stderr, end=" ", flush=True)
 
-    # if img_width % (i + 1) == 0:
-    #     msg = f"\rScanlines remaining: {img_height - j}"
-    #     print(msg, file=sys.stderr, end=" ", flush=True)
-    return i, j, pixel_color_str
+    if width % (i + 1) == 0:
+        print(f"\rScanlines remaining: {j}", file=sys.stderr, end=" ", flush=True)
+
+    return get_color_str(pixel_color, samples_per_pixel)
 
 
 async def main() -> None:
@@ -167,20 +164,15 @@ async def main() -> None:
 
     cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
 
-    coords = itertools.product(range(img_height), range(img_width))
-    colors = [[None] * img_width] * img_height
+    coords = itertools.product(range(img_height - 1, -1, -1), range(img_width))
     params = (img_width, img_height, max_depth, cam, world, samples_per_pixel)
-    consumers = [asyncio.create_task(consume(i, j, *params)) for j, i in coords]
+    tasks = [asyncio.create_task(consume(i, j, *params)) for j, i in coords]
 
-    for result in asyncio.as_completed(consumers):
-        i, j, color = await result
-        colors[j][i] = color
-
-    import ipdb
-
-    ipdb.set_trace()
     print(f"P3\n{img_width} {img_height}\n255")
-    print("\n".join(["\n".join(c) for c in colors]))
+
+    for color in asyncio.as_completed(tasks):
+        print(await color)
+
     print("\nDone.", file=sys.stderr)
 
 
