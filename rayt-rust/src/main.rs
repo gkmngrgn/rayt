@@ -1,3 +1,4 @@
+mod camera;
 mod color;
 mod hittable;
 mod material;
@@ -5,12 +6,13 @@ mod ray;
 mod utils;
 mod vec3;
 
-use crate::hittable::{Sphere, World};
+use crate::camera::Camera;
+use crate::color::write_color;
+use crate::hittable::{HitRecord, Sphere, World};
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::utils::INFINITY;
 use crate::vec3::{dot, unit_vector, Color, Point3, Vec3};
-use color::write_color;
-use material::{Dielectric, Lambertian, Metal};
 
 #[macro_use]
 extern crate itertools;
@@ -29,16 +31,16 @@ fn hit_sphere(center: Point3, radius: f64, r: Ray) -> f64 {
     }
 }
 
-fn ray_color(r: Ray, world: &World, depth: usize) -> Color {
+fn ray_color(r: Ray, world: World, depth: usize) -> Color {
     if depth <= 0 {
         return Color::from([0.0, 0.0, 0.0]);
     }
 
-    let rec;
+    let rec: HitRecord;
 
     if world.hit(r, 0.001, INFINITY, rec) {
-        let scattered;
-        let attenuation;
+        let scattered: Ray;
+        let attenuation: Color;
         if rec.material.scatter(r, rec, attenuation, scattered) {
             // FIXME: don't use recursive here. take a look at the Python code.
             return attenuation * ray_color(scattered, world, depth - 1);
@@ -51,10 +53,10 @@ fn ray_color(r: Ray, world: &World, depth: usize) -> Color {
     (1.0 - t) * Color::from([1.0, 1.0, 1.0]) + t * Color::from([0.5, 0.7, 1.0])
 }
 
-fn random_scene() {
+fn random_scene() -> World {
     let world: World;
 
-    let ground_material = Lambertian::new(Color::from([0.5, 0.5, 0.5]));
+    let ground_material = Material::new_lambertian(Color::from([0.5, 0.5, 0.5]));
     world.add(Sphere::new(
         Point3::from([0.0, -1000.0, 0.0]),
         1000.0,
@@ -63,13 +65,13 @@ fn random_scene() {
 
     // TODO: add small materials here.
 
-    let material_1 = Dielectric::new(1.5);
+    let material_1 = Material::new_dielectric(1.5);
     world.add(Sphere::new(Point3::from([0.0, 1.0, 0.0]), 1.0, material_1));
 
-    let material_2 = Lambertian::new(Color::from([0.4, 0.2, 0.1]));
+    let material_2 = Material::new_lambertian(Color::from([0.4, 0.2, 0.1]));
     world.add(Sphere::new(Point3::from([-4.0, 1.0, 0.0]), 1.0, material_2));
 
-    let material_3 = Metal::new(Color::from([0.7, 0.6, 0.5]), 0.0);
+    let material_3 = Material::new_metal(Color::from([0.7, 0.6, 0.5]), 0.0);
     world.add(Sphere::new(Point3::from([4.0, 1.0, 0.0]), 1.0, material_3));
 
     world
@@ -95,7 +97,7 @@ fn main() {
         lookfrom,
         lookat,
         vup,
-        20,
+        20.0,
         aspect_ratio,
         aperture,
         dist_to_focus,

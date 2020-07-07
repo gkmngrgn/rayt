@@ -1,12 +1,24 @@
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{dot, Point3, Vec3};
 
 pub(crate) struct HitRecord {
-    pub p: Point3,
-    pub normal: Vec3,
-    material: Material,
-    t: f64,
-    pub front_face: bool,
+    pub(crate) p: Point3,
+    pub(crate) normal: Vec3,
+    pub(crate) material: Material,
+    pub(crate) t: f64,
+    pub(crate) front_face: bool,
+}
+
+impl HitRecord {
+    pub(crate) fn set_face_normal(self, r: Ray, outward_normal: Vec3) {
+        self.front_face = dot(r.direction, outward_normal) < 0.0;
+        self.normal = if self.front_face {
+            outward_normal
+        } else {
+            -outward_normal
+        };
+    }
 }
 
 trait Hittable {
@@ -59,7 +71,7 @@ impl Hittable for Sphere {
 
                 let outward_normal = (rec.p - self.center) / self.radius;
                 rec.set_face_normal(r, outward_normal);
-                rec.material = material;
+                rec.material = self.material;
                 return true;
             }
         }
@@ -68,13 +80,17 @@ impl Hittable for Sphere {
     }
 }
 
-pub struct World {
+pub(crate) struct World {
     objects: Vec<Sphere>,
 }
 
 impl World {
-    pub fn hit(self, r: Ray, t_min: f64, t_max: f64, rec: HitRecord) -> bool {
+    pub(crate) fn hit(self, r: Ray, t_min: f64, t_max: f64, rec: HitRecord) -> bool {
         self.hit(r, t_min, t_max, rec)
+    }
+
+    pub(crate) fn add(self, object: Sphere) {
+        self.objects.push(object);
     }
 }
 

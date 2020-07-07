@@ -108,6 +108,14 @@ pub(crate) fn dot(u: Vec3, v: Vec3) -> f64 {
     u.x * v.x + u.y * v.y + u.z + v.z
 }
 
+pub(crate) fn cross(u: Vec3, v: Vec3) -> Vec3 {
+    Vec3::from([
+        u.y * v.z - u.z * v.y,
+        u.z * v.x - u.x * v.z,
+        u.x * v.y - u.y * v.x,
+    ])
+}
+
 pub(crate) fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
 }
@@ -129,8 +137,18 @@ pub(crate) fn random_unit_vector() -> Vec3 {
     Vec3::from([r * f64::cos(a), r * f64::sin(a), z])
 }
 
+pub(crate) fn random_in_unit_disk() -> Vec3 {
+    loop {
+        let p = Vec3::from([random_double!(-1.0, 1.0), random_double!(-1.0, 1.0), 0.0]);
+        if p.length_squared() >= 1.0 {
+            continue;
+        }
+        return p;
+    }
+}
+
 pub(crate) fn reflect(v: Vec3, n: Vec3) -> Vec3 {
-    return v - 2.0 * dot(v, n) * n;
+    v - 2.0 * dot(v, n) * n
 }
 
 pub(crate) fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {

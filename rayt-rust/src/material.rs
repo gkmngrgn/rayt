@@ -5,21 +5,49 @@ use crate::vec3::{
     dot, random_in_unit_sphere, random_unit_vector, reflect, refract, unit_vector, Color,
 };
 
-trait Material {
-    fn scatter(self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool;
+pub(crate) enum Material {
+    Lambertian(Lambertian),
+    Metal(Metal),
+    Dielectric(Dielectric),
 }
 
-pub(crate) struct Lambertian {
+impl Material {
+    pub(crate) fn new_lambertian(albedo: Color) -> Self {
+        Material::Lambertian(Lambertian::new(albedo))
+    }
+
+    pub(crate) fn new_metal(albedo: Color, fuzz: f64) -> Self {
+        Material::Metal(Metal::new(albedo, fuzz))
+    }
+
+    pub(crate) fn new_dielectric(ref_idx: f64) -> Self {
+        Material::Dielectric(Dielectric::new(ref_idx))
+    }
+
+    pub(crate) fn scatter(
+        self,
+        r_in: Ray,
+        rec: HitRecord,
+        attenuation: Color,
+        scattered: Ray,
+    ) -> bool {
+        match self {
+            Material::Lambertian(m) => m.scatter(r_in, rec, attenuation, scattered),
+            Material::Metal(m) => m.scatter(r_in, rec, attenuation, scattered),
+            Material::Dielectric(m) => m.scatter(r_in, rec, attenuation, scattered),
+        }
+    }
+}
+
+struct Lambertian {
     albedo: Color,
 }
 
 impl Lambertian {
-    pub(crate) fn new(albedo: Color) -> Self {
+    fn new(albedo: Color) -> Self {
         Self { albedo }
     }
-}
 
-impl Material for Lambertian {
     fn scatter(self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool {
         let scatter_direction = rec.normal + random_unit_vector();
         scattered = Ray::new(rec.p, scatter_direction);
@@ -28,21 +56,19 @@ impl Material for Lambertian {
     }
 }
 
-pub(crate) struct Metal {
+struct Metal {
     albedo: Color,
     fuzz: f64,
 }
 
 impl Metal {
-    pub(crate) fn new(albedo: Color, fuzz: f64) -> Self {
+    fn new(albedo: Color, fuzz: f64) -> Self {
         Self {
             albedo,
             fuzz: if fuzz < 1.0 { fuzz } else { 1.0 },
         }
     }
-}
 
-impl Material for Metal {
     fn scatter(self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool {
         let reflected = reflect(unit_vector(r_in.direction), rec.normal);
         scattered = Ray::new(rec.p, reflected + self.fuzz * random_in_unit_sphere());
@@ -51,17 +77,15 @@ impl Material for Metal {
     }
 }
 
-pub(crate) struct Dielectric {
+struct Dielectric {
     ref_idx: f64,
 }
 
 impl Dielectric {
-    pub(crate) fn new(ref_idx: f64) -> Self {
+    fn new(ref_idx: f64) -> Self {
         Self { ref_idx }
     }
-}
 
-impl Material for Dielectric {
     fn scatter(self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool {
         attenuation = Color::from([1.0, 1.0, 1.0]);
         let etai_over_etat = if rec.front_face {
@@ -95,5 +119,5 @@ impl Material for Dielectric {
 
 fn schlick(cosine: f64, ref_idx: f64) -> f64 {
     let r0 = ((1.0 - ref_idx) / (1.0 + ref_idx)).powi(2);
-    r0 + (1 - r0) * (1.0 - cosine).powi(5)
+    r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
 }
