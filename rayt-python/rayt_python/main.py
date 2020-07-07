@@ -48,29 +48,28 @@ def ray_color(ray: Ray, world: Hittable, depth: int) -> Color:
 def random_scene() -> HittableList:
     world = HittableList()
     ground_material = Lambertian(albedo=Color(0.5, 0.5, 0.5))
-    world.add(Sphere(Point3(0, -1000, 0), 1000, ground_material))
+    world.add(Sphere(Point3(0.0, -1000.0, 0.0), 1000.0, ground_material))
 
-    for a in range(-11, 11):
-        for b in range(-11, 11):
-            choose_mat = random_double()
-            center = Point3(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double())
+    for a, b in itertools.product(range(-11, 11), range(-11, 11)):
+        choose_mat = random_double()
+        center = Point3(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double())
 
-            if (center - Point3(4, 0.2, 0)).length > 0.9:
-                if choose_mat < 0.8:
-                    # diffuse
-                    albedo = Color.random() * Color.random()
-                    sphere_material = Lambertian(albedo)
-                    world.add(Sphere(center, 0.2, sphere_material))
-                elif choose_mat < 0.95:
-                    # metal
-                    albedo = Color.random(0.5, 1)
-                    fuzz = random_double(0, 0.5)
-                    sphere_material = Metal(albedo, fuzz)
-                    world.add(Sphere(center, 0.2, sphere_material))
-                else:
-                    # glass
-                    sphere_material = Dielectric(1.5)
-                    world.add(Sphere(center, 0.2, sphere_material))
+        if (center - Point3(4.0, 0.2, 0.0)).length > 0.9:
+            if choose_mat < 0.8:
+                # diffuse
+                albedo = Color.random() * Color.random()
+                sphere_material = Lambertian(albedo)
+                world.add(Sphere(center, 0.2, sphere_material))
+            elif choose_mat < 0.95:
+                # metal
+                albedo = Color.random(0.5, 1.0)
+                fuzz = random_double(0.0, 0.5)
+                sphere_material = Metal(albedo, fuzz)
+                world.add(Sphere(center, 0.2, sphere_material))
+            else:
+                # glass
+                sphere_material = Dielectric(1.5)
+                world.add(Sphere(center, 0.2, sphere_material))
 
     material_1 = Dielectric(1.5)
     world.add(Sphere(Point3(0.0, 1.0, 0.0), 1.0, material_1))
