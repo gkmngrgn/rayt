@@ -11,6 +11,12 @@ macro_rules! random_double {
     ($min:expr, $max:expr) => {
         $min + ($max - $min) * random_double!()
     };
+    ($min_max:expr) => {
+        match $min_max {
+            Some(min_max) => random_double!(min_max[0], min_max[1]),
+            None => random_double!(),
+        }
+    };
 }
 
 // Utility functions

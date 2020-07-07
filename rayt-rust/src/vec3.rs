@@ -1,5 +1,5 @@
 use crate::{random_double, utils::PI};
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 pub(crate) struct Vec3 {
     pub x: f64,
@@ -8,6 +8,14 @@ pub(crate) struct Vec3 {
 }
 
 impl Vec3 {
+    fn random(min_max: Option<[f64; 2]>) -> Self {
+        Self {
+            x: random_double!(min_max),
+            y: random_double!(min_max),
+            z: random_double!(min_max),
+        }
+    }
+
     fn length(self) -> f64 {
         f64::sqrt(self.length_squared())
     }
@@ -30,11 +38,11 @@ impl From<[f64; 3]> for Vec3 {
 impl Add<Vec3> for Vec3 {
     type Output = Vec3;
 
-    fn add(self, v: Vec3) -> Self {
-        Self {
-            x: self.x + v.x,
-            y: self.y + v.y,
-            z: self.z + v.z,
+    fn add(self, rhs: Vec3) -> Self::Output {
+        Self::Output {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
         }
     }
 }
@@ -42,11 +50,11 @@ impl Add<Vec3> for Vec3 {
 impl Sub<Vec3> for Vec3 {
     type Output = Vec3;
 
-    fn sub(self, v: Vec3) -> Self {
-        Self {
-            x: self.x - v.x,
-            y: self.y - v.y,
-            z: self.z - v.z,
+    fn sub(self, rhs: Vec3) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
         }
     }
 }
@@ -54,11 +62,11 @@ impl Sub<Vec3> for Vec3 {
 impl Mul<f64> for Vec3 {
     type Output = Vec3;
 
-    fn mul(self, t: f64) -> Self {
-        Self {
-            x: self.x * t,
-            y: self.y * t,
-            z: self.z * t,
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self::Output {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
         }
     }
 }
@@ -66,16 +74,28 @@ impl Mul<f64> for Vec3 {
 impl Mul<Vec3> for f64 {
     type Output = Vec3;
 
-    fn mul(self, v: Vec3) -> Vec3 {
-        v * self
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        rhs * self
     }
 }
 
 impl Div<f64> for Vec3 {
     type Output = Vec3;
 
-    fn div(self, t: f64) -> Self {
-        self * 1.0 / t
+    fn div(self, rhs: f64) -> Self::Output {
+        self * 1.0 / rhs
+    }
+}
+
+impl Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Self::Output {
+        Self::Output {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
     }
 }
 
@@ -92,9 +112,30 @@ pub(crate) fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
 }
 
+pub(crate) fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p = Vec3::random(Some([-1.0, 1.0]));
+        if p.length_squared() >= 1.0 {
+            continue;
+        }
+        return p;
+    }
+}
+
 pub(crate) fn random_unit_vector() -> Vec3 {
     let a = random_double!(0.0, 2.0 * PI);
     let z = random_double!(-1.0, 1.0);
     let r = f64::sqrt(1.0 - z.powi(2));
     Vec3::from([r * f64::cos(a), r * f64::sin(a), z])
+}
+
+pub(crate) fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+    return v - 2.0 * dot(v, n) * n;
+}
+
+pub(crate) fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
+    let cos_theta = dot(-uv, n);
+    let r_out_parallel = etai_over_etat * (uv + cos_theta * n);
+    let r_out_perp = -f64::sqrt(1.0 - r_out_parallel.length_squared()) * n;
+    r_out_parallel + r_out_perp
 }

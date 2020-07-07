@@ -5,10 +5,12 @@ mod ray;
 mod utils;
 mod vec3;
 
+use crate::hittable::{Sphere, World};
 use crate::ray::Ray;
 use crate::utils::INFINITY;
 use crate::vec3::{dot, unit_vector, Color, Point3, Vec3};
 use color::write_color;
+use material::{Dielectric, Lambertian, Metal};
 
 #[macro_use]
 extern crate itertools;
@@ -27,7 +29,7 @@ fn hit_sphere(center: Point3, radius: f64, r: Ray) -> f64 {
     }
 }
 
-fn ray_color(r: Ray, world: Hittable, depth: usize) -> Color {
+fn ray_color(r: Ray, world: &World, depth: usize) -> Color {
     if depth <= 0 {
         return Color::from([0.0, 0.0, 0.0]);
     }
@@ -50,7 +52,7 @@ fn ray_color(r: Ray, world: Hittable, depth: usize) -> Color {
 }
 
 fn random_scene() {
-    let world;
+    let world: World;
 
     let ground_material = Lambertian::new(Color::from([0.5, 0.5, 0.5]));
     world.add(Sphere::new(
