@@ -18,12 +18,16 @@ class Vec3:
             self.e[0] - other.e[0], self.e[1] - other.e[1], self.e[2] - other.e[2]
         )
 
-    def __mul__(self, other: typing.Union["Vec3", float, int]) -> "Vec3":
-        if isinstance(other, (float, int)):
-            return Vec3(self.e[0] * other, self.e[1] * other, self.e[2] * other)
-        return Vec3(
-            self.e[0] * other.e[0], self.e[1] * other.e[1], self.e[2] * other.e[2]
-        )
+    def __mul__(self, other: typing.Union["Vec3", float]) -> "Vec3":
+        if isinstance(other, float):
+            x, y, z = self.e[0] * other, self.e[1] * other, self.e[2] * other
+        else:
+            x, y, z = (
+                self.e[0] * other.e[0],
+                self.e[1] * other.e[1],
+                self.e[2] * other.e[2],
+            )
+        return Vec3(x, y, z)
 
     def __rmul__(self, other: typing.Union["Vec3", float, int]) -> "Vec3":
         return self.__mul__(other)
@@ -31,12 +35,11 @@ class Vec3:
     def __neg__(self) -> "Vec3":
         return Vec3(-self.e[0], -self.e[1], -self.e[2])
 
-    def __truediv__(self, other: typing.Union["Vec3", float, int]) -> "Vec3":
-        if isinstance(other, (float, int)):
+    def __truediv__(self, other: typing.Union["Vec3", float]) -> "Vec3":
+        if isinstance(other, float):
             return self.__mul__(1 / other)
-        return Vec3(
-            self.e[0] / other.e[0], self.e[1] / other.e[1], self.e[2] / other.e[2]
-        )
+        x, y, z = self.e[0] / other.e[0], self.e[1] / other.e[1], self.e[2] / other.e[2]
+        return Vec3(x, y, z)
 
     @classmethod
     def random(cls, min: float = 0.0, max: float = 1.0) -> "Vec3":

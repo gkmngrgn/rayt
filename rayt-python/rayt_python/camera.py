@@ -35,7 +35,10 @@ class Camera:
         self.horizontal = focus_dist * viewport_width * self.u
         self.vertical = focus_dist * viewport_height * self.v
         self.lower_left_corner = (
-            self.origin - self.horizontal / 2 - self.vertical / 2 - focus_dist * self.w
+            self.origin
+            - self.horizontal / 2.0
+            - self.vertical / 2.0
+            - focus_dist * self.w
         )
         self.lens_radius = aperture / 2
 
