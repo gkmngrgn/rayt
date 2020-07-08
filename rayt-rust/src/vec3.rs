@@ -59,6 +59,18 @@ impl Sub<Vec3> for Vec3 {
     }
 }
 
+impl Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, rhs: Vec3) -> Self::Output {
+        Self::Output {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
+    }
+}
+
 impl Mul<f64> for Vec3 {
     type Output = Vec3;
 
@@ -104,7 +116,7 @@ pub(crate) type Point3 = Vec3; // 3D point
 pub(crate) type Color = Vec3; // RGB color
 
 // Vec3 utility functions
-pub(crate) fn dot(u: Vec3, v: Vec3) -> f64 {
+pub(crate) fn dot(u: &Vec3, v: &Vec3) -> f64 {
     u.x * v.x + u.y * v.y + u.z + v.z
 }
 
@@ -148,11 +160,11 @@ pub(crate) fn random_in_unit_disk() -> Vec3 {
 }
 
 pub(crate) fn reflect(v: Vec3, n: Vec3) -> Vec3 {
-    v - 2.0 * dot(v, n) * n
+    v - 2.0 * dot(&v, &n) * n
 }
 
 pub(crate) fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
-    let cos_theta = dot(-uv, n);
+    let cos_theta = dot(&-uv, &n);
     let r_out_parallel = etai_over_etat * (uv + cos_theta * n);
     let r_out_perp = -f64::sqrt(1.0 - r_out_parallel.length_squared()) * n;
     r_out_parallel + r_out_perp

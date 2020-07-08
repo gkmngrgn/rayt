@@ -73,7 +73,7 @@ impl Metal {
         let reflected = reflect(unit_vector(r_in.direction), rec.normal);
         scattered = Ray::new(rec.p, reflected + self.fuzz * random_in_unit_sphere());
         attenuation = self.albedo;
-        dot(scattered.direction, rec.normal) > 0.0
+        dot(&scattered.direction, &rec.normal) > 0.0
     }
 }
 
@@ -95,7 +95,7 @@ impl Dielectric {
         };
 
         let unit_direction = unit_vector(r_in.direction);
-        let cos_theta = f64::min(dot(-unit_direction, rec.normal), 1.0);
+        let cos_theta = f64::min(dot(&-unit_direction, &rec.normal), 1.0);
         let sin_theta = f64::sqrt(1.0 - cos_theta.powi(2));
 
         if etai_over_etat * sin_theta > 1.0 {
