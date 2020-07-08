@@ -93,19 +93,19 @@ def main_ordinary() -> None:
 
     cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
 
-    for j in range(image_height - 1, -1, -1):
-        print(f"\rScanlines remaining: {j}", file=sys.stderr, end=" ", flush=True)
+    for j, i in itertools.product(range(image_height - 1, -1, -1), range(image_width)):
+        if image_width % (i + 1) == 0:
+            print(f"\rScanlines remaining: {j}", file=sys.stderr, end=" ", flush=True)
 
-        for i in range(1, image_width + 1):
-            pixel_color = Color(0.0, 0.0, 0.0)
+        pixel_color = Color(0.0, 0.0, 0.0)
 
-            for _ in range(1, samples_per_pixel + 1):
-                u = (i + random_double()) / (image_width - 1)
-                v = (j + random_double()) / (image_height - 1)
-                ray = cam.get_ray(u, v)
-                pixel_color += ray_color(ray, world, max_depth)
+        for _ in range(1, samples_per_pixel + 1):
+            u = (i + random_double()) / (image_width - 1)
+            v = (j + random_double()) / (image_height - 1)
+            ray = cam.get_ray(u, v)
+            pixel_color += ray_color(ray, world, max_depth)
 
-            write_color(pixel_color, samples_per_pixel)
+        write_color(pixel_color, samples_per_pixel)
 
     print("\nDone.", file=sys.stderr)
 
