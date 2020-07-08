@@ -1,49 +1,41 @@
 mod camera;
 mod color;
 mod hittable;
+mod hittable_list;
 mod material;
 mod ray;
+mod sphere;
 mod utils;
 mod vec3;
 
 use crate::camera::Camera;
 use crate::color::write_color;
-use crate::hittable::{HitRecord, Sphere, World};
+use crate::hittable::HitRecord;
+use crate::hittable_list::HittableList;
 use crate::material::Material;
 use crate::ray::Ray;
+use crate::sphere::Sphere;
 use crate::utils::INFINITY;
-use crate::vec3::{dot, unit_vector, Color, Point3, Vec3};
+use crate::vec3::{unit_vector, Color, Point3, Vec3};
+use hittable::Hittable;
 
 #[macro_use]
 extern crate itertools;
 
-fn hit_sphere(center: Point3, radius: f64, r: Ray) -> f64 {
-    let oc = r.origin - center;
-    let a = r.direction.length_squared();
-    let half_b = dot(oc, r.direction);
-    let c = oc.length_squared() - radius.powi(2);
-    let discriminant = half_b.powi(2) - a * c;
-
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (-half_b - f64::sqrt(discriminant)) / a
-    }
-}
-
-fn ray_color(r: Ray, world: World, depth: usize) -> Color {
+fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
+    // FIXME: don't use recursive here. take a look at the Python code.
     if depth <= 0 {
         return Color::from([0.0, 0.0, 0.0]);
     }
 
-    let rec: HitRecord;
+    let mut rec: HitRecord;
 
-    if world.hit(r, 0.001, INFINITY, rec) {
+    if world.hit(r, 0.001, INFINITY, &mut rec) {
         let scattered: Ray;
         let attenuation: Color;
         if rec.material.scatter(r, rec, attenuation, scattered) {
-            // FIXME: don't use recursive here. take a look at the Python code.
-            return attenuation * ray_color(scattered, world, depth - 1);
+            let r_color: Color = ray_color(scattered, world, depth - 1);
+            return attenuation * r_color;
         }
         return Color::from([0.0, 0.0, 0.0]);
     }
