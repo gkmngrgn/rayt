@@ -26,7 +26,7 @@ impl Material {
 
     pub(crate) fn scatter(
         self,
-        r_in: Ray,
+        r_in: &Ray,
         rec: HitRecord,
         attenuation: Color,
         scattered: Ray,
@@ -39,6 +39,12 @@ impl Material {
     }
 }
 
+impl Default for Material {
+    fn default() -> Self {
+        Material::Lambertian(Lambertian::new(Color::default()))
+    }
+}
+
 struct Lambertian {
     albedo: Color,
 }
@@ -48,7 +54,7 @@ impl Lambertian {
         Self { albedo }
     }
 
-    fn scatter(self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool {
+    fn scatter(self, r_in: &Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool {
         let scatter_direction = rec.normal + random_unit_vector();
         scattered = Ray::new(rec.p, scatter_direction);
         attenuation = self.albedo;
@@ -69,7 +75,7 @@ impl Metal {
         }
     }
 
-    fn scatter(self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool {
+    fn scatter(self, r_in: &Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool {
         let reflected = reflect(unit_vector(r_in.direction), rec.normal);
         scattered = Ray::new(rec.p, reflected + self.fuzz * random_in_unit_sphere());
         attenuation = self.albedo;
@@ -86,7 +92,7 @@ impl Dielectric {
         Self { ref_idx }
     }
 
-    fn scatter(self, r_in: Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool {
+    fn scatter(self, r_in: &Ray, rec: HitRecord, attenuation: Color, scattered: Ray) -> bool {
         attenuation = Color::from([1.0, 1.0, 1.0]);
         let etai_over_etat = if rec.front_face {
             1.0 / self.ref_idx

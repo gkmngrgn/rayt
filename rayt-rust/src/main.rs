@@ -28,13 +28,13 @@ fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
         return Color::from([0.0, 0.0, 0.0]);
     }
 
-    let mut rec: HitRecord;
+    let mut rec = HitRecord::default();
 
     if world.hit(r, 0.001, INFINITY, &mut rec) {
         let scattered: Ray;
         let attenuation: Color;
         if rec.material.scatter(r, rec, attenuation, scattered) {
-            let r_color: Color = ray_color(scattered, world, depth - 1);
+            let r_color: Color = ray_color(&scattered, world, depth - 1);
             return attenuation * r_color;
         }
         return Color::from([0.0, 0.0, 0.0]);
@@ -45,9 +45,8 @@ fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
     (1.0 - t) * Color::from([1.0, 1.0, 1.0]) + t * Color::from([0.5, 0.7, 1.0])
 }
 
-fn random_scene() -> World {
-    let world: World;
-
+fn random_scene() -> HittableList {
+    let world = HittableList::default();
     let ground_material = Material::new_lambertian(Color::from([0.5, 0.5, 0.5]));
     world.add(Sphere::new(
         Point3::from([0.0, -1000.0, 0.0]),
@@ -104,7 +103,7 @@ fn main() {
                 let u = (i as f64 + random_double!()) / (image_width - 1) as f64;
                 let v = (j as f64 + random_double!()) / (image_height - 1) as f64;
                 let r = cam.get_ray(u, v);
-                ray_color(r, world, max_depth)
+                ray_color(&r, &world, max_depth)
             })
             .fold(Color::from([0.0, 0.0, 0.0]), |sum, c| sum + c);
         write_color(pixel_color, samples_per_pixel);

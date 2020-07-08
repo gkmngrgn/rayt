@@ -2,6 +2,7 @@ use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{dot, Point3, Vec3};
 
+#[derive(Default)]
 pub(crate) struct HitRecord {
     pub(crate) p: Point3,
     pub(crate) normal: Vec3,
