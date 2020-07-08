@@ -1,10 +1,11 @@
-import asyncio
+import functools
 import itertools
 import math
+import multiprocessing
 import sys
 
 from rayt_python.camera import Camera
-from rayt_python.color import get_color_str, write_color
+from rayt_python.color import write_color
 from rayt_python.hittable import Hittable
 from rayt_python.hittable_list import HittableList
 from rayt_python.material import Dielectric, Lambertian, Metal
@@ -74,15 +75,26 @@ def random_scene() -> HittableList:
     return world
 
 
-def main_ordinary() -> None:
+def consume_color(width, height, cam, world, max_depth, samples_per_pixel, coord):
+    pixel_color = Color(0.0, 0.0, 0.0)
+    j, i = coord
+
+    for _ in range(1, samples_per_pixel + 1):
+        u = (i + random_double()) / (width - 1)
+        v = (j + random_double()) / (height - 1)
+        ray = cam.get_ray(u, v)
+        pixel_color += ray_color(ray, world, max_depth)
+
+    return pixel_color
+
+
+def main() -> None:
     aspect_ratio = 16.0 / 9.0
     image_width = 300
     image_height = int(image_width / aspect_ratio)
     samples_per_pixel = 20
     max_depth = 50
 
-    print(f"P3\n{image_width} {image_height}\n255")
-
     world = random_scene()
 
     lookfrom = Point3(13, 2, 3)
@@ -91,85 +103,31 @@ def main_ordinary() -> None:
     dist_to_focus = 10.0
     aperture = 0.1
 
-    cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
+    cam = Camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
 
-    for j, i in itertools.product(range(image_height - 1, -1, -1), range(image_width)):
-        if image_width % (i + 1) == 0:
-            print(f"\rScanlines remaining: {j}", file=sys.stderr, end=" ", flush=True)
+    pool = multiprocessing.Pool()
+    coords = itertools.product(range(image_height - 1, -1, -1), range(image_width))
+    func = functools.partial(
+        consume_color,
+        image_width,
+        image_height,
+        cam,
+        world,
+        max_depth,
+        samples_per_pixel,
+    )
 
-        pixel_color = Color(0.0, 0.0, 0.0)
+    result = pool.map_async(func, coords)
+    colors = result.get()
 
-        for _ in range(1, samples_per_pixel + 1):
-            u = (i + random_double()) / (image_width - 1)
-            v = (j + random_double()) / (image_height - 1)
-            ray = cam.get_ray(u, v)
-            pixel_color += ray_color(ray, world, max_depth)
+    print(f"P3\n{image_width} {image_height}\n255")
 
+    for pixel_color in colors:
         write_color(pixel_color, samples_per_pixel)
 
     print("\nDone.", file=sys.stderr)
 
 
-async def consume(
-    i: int,
-    j: int,
-    width: int,
-    height: int,
-    max_depth: int,
-    cam: Camera,
-    world: HittableList,
-    samples_per_pixel: int,
-) -> str:
-    def calculate_color() -> Color:
-        u = (i + random_double()) / (width - 1)
-        v = (j + random_double()) / (height - 1)
-        ray = cam.get_ray(u, v)
-        return ray_color(ray, world, max_depth)
-
-    pixel_color = sum(
-        [calculate_color() for _ in range(samples_per_pixel)],
-        start=Color(0.0, 0.0, 0.0),
-    )
-
-    if width % (i + 1) == 0:
-        print(f"\rScanlines remaining: {j}", file=sys.stderr, end=" ", flush=True)
-
-    return get_color_str(pixel_color, samples_per_pixel)
-
-
-async def main() -> None:
-    aspect_ratio = 16.0 / 9.0
-    img_width = 300
-    img_height = int(img_width / aspect_ratio)
-    samples_per_pixel = 20
-    max_depth = 50
-    world = random_scene()
-
-    lookfrom = Point3(13, 2, 3)
-    lookat = Point3(0, 0, 0)
-    vup = Vec3(0, 1, 0)
-    dist_to_focus = 10.0
-    aperture = 0.1
-
-    cam = Camera(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus)
-
-    coords = itertools.product(range(img_height - 1, -1, -1), range(img_width))
-    params = (img_width, img_height, max_depth, cam, world, samples_per_pixel)
-    tasks = [asyncio.create_task(consume(i, j, *params)) for j, i in coords]
-
-    print(f"P3\n{img_width} {img_height}\n255")
-
-    for color in asyncio.as_completed(tasks):
-        print(await color)
-
-    print("\nDone.", file=sys.stderr)
-
-
-def run() -> None:
-    asyncio.run(main())
-    # main_ordinary()
-
-
 if __name__ == "__main__":
     # poetry run scalene rayt_python/main.py --html --outfile ~/Downloads/scalene.html
-    run()
+    main()
