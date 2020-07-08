@@ -11,16 +11,7 @@ from rayt_python.material import Dielectric, Lambertian, Metal
 from rayt_python.ray import Ray
 from rayt_python.sphere import Sphere
 from rayt_python.utils import random_double
-from rayt_python.vec3 import Color, Point3, Vec3, dot, unit_vector
-
-
-def hit_sphere(center: Point3, radius: float, ray: Ray) -> float:
-    oc = ray.origin - center
-    a = ray.direction.length_squared
-    half_b = dot(oc, ray.direction)
-    c = oc.length_squared - radius * radius
-    discriminant = pow(half_b, 2) - a * c
-    return -1.0 if discriminant < 0 else (-half_b - pow(discriminant, 0.5)) / a
+from rayt_python.vec3 import Color, Point3, Vec3, unit_vector
 
 
 def ray_color(ray: Ray, world: Hittable, depth: int) -> Color:
@@ -177,3 +168,8 @@ async def main() -> None:
 def run() -> None:
     asyncio.run(main())
     # main_ordinary()
+
+
+if __name__ == "__main__":
+    # poetry run scalene rayt_python/main.py --html --outfile ~/Downloads/scalene.html
+    run()

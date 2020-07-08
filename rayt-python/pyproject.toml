@@ -12,10 +12,11 @@ rayt = "rayt_python.main:run"
 python = "^3.8"
 
 [tool.poetry.dev-dependencies]
-pytest = "5.2"
-mypy = "0.780"
-ipython = "^7.15.0"
-ipdb = "^0.13.2"
+ipdb = "0.13.3"
+ipython = "7.16.1"
+mypy = "0.782"
+pytest = "5.4.3"
+scalene = "0.9.13"
 
 [tool.black]
 target-version = ['py38']
