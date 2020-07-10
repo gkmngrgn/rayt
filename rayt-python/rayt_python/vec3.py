@@ -7,7 +7,6 @@ from rayt_python.utils import random_double
 # from dataclasses import dataclass
 
 
-
 class Vec3(Structure):
     _fields_ = [("x", c_double), ("y", c_double), ("z", c_double)]
 
@@ -23,7 +22,7 @@ class Vec3(Structure):
     def __eq__(self, other: typing.Union["Vec3", None]) -> bool:
         if other is None:
             return False
-        return all([self.x == other.x, self.y == other.y, self.z == other.z])
+        return self.x == other.x and self.y == other.y and self.z == other.z
 
     def __add__(self, other: "Vec3") -> "Vec3":
         return Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
