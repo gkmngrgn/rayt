@@ -3,6 +3,7 @@ import itertools
 import math
 import multiprocessing
 import sys
+import time
 
 from rayt_python.camera import Camera
 from rayt_python.color import write_color
@@ -75,9 +76,12 @@ def random_scene() -> HittableList:
     return world
 
 
-def consume_color(width, height, cam, world, max_depth, samples_per_pixel, coord):
+def consume_color(
+    width, height, cam, world, max_depth, samples_per_pixel, queue, coord
+):
     pixel_color = Color(0.0, 0.0, 0.0)
     j, i = coord
+    queue.put(height - j)
 
     for _ in range(1, samples_per_pixel + 1):
         u = (i + random_double()) / (width - 1)
@@ -106,6 +110,8 @@ def main() -> None:
     cam = Camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
 
     pool = multiprocessing.Pool()
+    manager = multiprocessing.Manager()
+    queue = manager.Queue()
     coords = itertools.product(range(image_height - 1, -1, -1), range(image_width))
     func = functools.partial(
         consume_color,
@@ -115,9 +121,14 @@ def main() -> None:
         world,
         max_depth,
         samples_per_pixel,
+        queue,
     )
-
     result = pool.map_async(func, coords)
+    while not result.ready():
+        remaining = image_height - queue.qsize() // image_width
+        print(f"\rScanlines remaining: {remaining}", end=" ", file=sys.stderr)
+        time.sleep(0.1)
+
     colors = result.get()
 
     print(f"P3\n{image_width} {image_height}\n255")

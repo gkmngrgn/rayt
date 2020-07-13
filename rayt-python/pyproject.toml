@@ -31,6 +31,7 @@ indent = "    "
 multi_line_output = 3
 sections = "FUTURE,STDLIB,FIRSTPARTY,THIRDPARTY,LOCALFOLDER"
 use_parentheses = true
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
