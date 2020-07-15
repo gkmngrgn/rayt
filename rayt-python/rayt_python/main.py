@@ -142,5 +142,9 @@ def main() -> None:
 
 if __name__ == "__main__":
     # main()
-    vec3 = Vec3_2(x=1.0, y=2.0, z=1.5)
-    vec3.print_vec3()
+    vec3_1 = Vec3_2(x=1.0, y=2.0, z=1.5)
+    vec3_2 = Vec3_2(x=1.2, y=-2.5, z=0.5)
+    total = vec3_1 + vec3_2
+    print(f"vec3_1: {vec3_1}")
+    print(f"vec3_2: {vec3_2}")
+    print(f"total : {total}")

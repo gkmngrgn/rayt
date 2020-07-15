@@ -30,11 +30,12 @@ I tested the project using the latest stable version of Python (3.8).
 
 ```
 cd rayt-python
+pip install -r requirements.txt
 python setup.py build_ext --inplace
 python -m rayt_python.main
 ```
 
-For development
+For development:
 ```
 pip install -r requirements-dev.txt
 python -m scalene rayt_python/main.py --html --outfile scalene.html
