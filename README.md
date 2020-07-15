@@ -26,12 +26,18 @@ bin\rayt-cpp.exe > image.ppm
 
 ![](assets/rayt-python.png)
 
-I tested the project using the latest stable version of Python (3.8). Use poetry to manage commands and dependencies.
+I tested the project using the latest stable version of Python (3.8).
 
 ```
 cd rayt-python
-CC=clang poetry build
-poetry run rayt
+python setup.py build_ext --inplace
+python -m rayt_python.main
+```
+
+For development
+```
+pip install -r requirements-dev.txt
+python -m scalene rayt_python/main.py --html --outfile scalene.html
 ```
 
 ### TODO

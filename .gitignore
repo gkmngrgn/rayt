@@ -1,4 +1,6 @@
-/cpp/build/
+/rayt-cpp/build/
+/rayt-python/**/*.c
+/rayt-python/**/*.html
 
 # -- C++.gitignore
 # Prerequisites
