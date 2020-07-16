@@ -1,4 +1,4 @@
-from rayt_python.vec3 import Color, Point3, Vec3
+from rayt_python.vec3_types import Color, Point3, Vec3
 
 
 def test_unary_minus_operator():

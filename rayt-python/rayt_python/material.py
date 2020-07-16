@@ -3,7 +3,6 @@ import typing
 from rayt_python.ray import Ray
 from rayt_python.utils import random_double
 from rayt_python.vec3 import (
-    Color,
     dot,
     random_in_unit_sphere,
     random_unit_vector,
@@ -11,6 +10,7 @@ from rayt_python.vec3 import (
     refract,
     unit_vector,
 )
+from rayt_python.vec3_types import Color
 
 if typing.TYPE_CHECKING:
     from rayt_python.hittable import HitRecord

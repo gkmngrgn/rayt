@@ -1,4 +1,4 @@
-from rayt_python.vec3 import Point3, Vec3
+from rayt_python.vec3_types import Point3, Vec3
 
 
 class Ray:

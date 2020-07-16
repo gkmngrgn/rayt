@@ -2,13 +2,8 @@ import math
 
 from rayt_python.ray import Ray
 from rayt_python.utils import degrees_to_radians
-from rayt_python.vec3 import (
-    Point3,
-    Vec3,
-    cross,
-    random_in_unit_disk,
-    unit_vector,
-)
+from rayt_python.vec3 import cross, random_in_unit_disk, unit_vector
+from rayt_python.vec3_types import Point3, Vec3
 
 
 class Camera:

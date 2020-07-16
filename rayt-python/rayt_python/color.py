@@ -1,5 +1,5 @@
 from rayt_python.utils import clamp
-from rayt_python.vec3 import Color
+from rayt_python.vec3_types import Color
 
 
 def get_color_str(pixel_color: Color, samples_per_pixel: int) -> str:

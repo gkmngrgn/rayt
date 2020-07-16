@@ -3,7 +3,8 @@ import typing
 from rayt_python.hittable import HitRecord, Hittable
 from rayt_python.material import Material
 from rayt_python.ray import Ray
-from rayt_python.vec3 import Point3, dot
+from rayt_python.vec3 import dot
+from rayt_python.vec3_types import Point3
 
 
 class Sphere(Hittable):

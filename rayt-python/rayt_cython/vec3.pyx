@@ -1,11 +1,13 @@
 from __future__ import print_function
-from libc.math cimport sqrt, pow
+
+from libc.math cimport pow, sqrt
+from libc.stdlib cimport RAND_MAX, rand
 
 
 cdef class Vec3:
-    cdef double x, y, z
+    cdef public double x, y, z
 
-    def __cinit__(self, double x, double y, double z):
+    def __init__(self, double x, double y, double z):
         self.x = x
         self.y = y
         self.z = z
@@ -56,6 +58,15 @@ cdef class Vec3:
             )
         return result
 
+    @classmethod
+    def random(cls, double min=0.0, double max=1.0):
+        cdef Vec3 vec3 = Vec3(
+            random_double(min, max),
+            random_double(min, max),
+            random_double(min, max),
+        )
+        return vec3
+
     @property
     def length(self):
         return sqrt(self.length_squared)
@@ -72,3 +83,11 @@ cdef class Point3(Vec3):  # 3D point
 cdef class Color(Vec3):  # RGB color
     def __repr__(self):
         return f"Color({self.x}, {self.y}, {self.z})"
+
+
+cdef random_double(double min, double max):
+    # TODO: it's a repeated function. there's a DRY problem.
+    #       can we merge this func with utils.py/random_double()?
+    cdef double div = RAND_MAX / (max - min)
+    cdef double result = min + (rand() / div)
+    return result
