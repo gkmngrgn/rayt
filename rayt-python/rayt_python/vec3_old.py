@@ -8,14 +8,11 @@ from rayt_python.utils import random_double
 class Vec3(Structure):
     _fields_ = [("x", c_double), ("y", c_double), ("z", c_double)]
 
-    # @dataclass
-    # class Vec3:
-    #     x: float
-    #     y: float
-    #     z: float
-
     def __repr__(self):
         return f"({self.x}, {self.y}, {self.z})"
+
+    def __neg__(self) -> "Vec3":
+        return Vec3(-self.x, -self.y, -self.z)
 
     def __eq__(self, other: typing.Union["Vec3", None]) -> bool:
         if other is None:
@@ -37,9 +34,6 @@ class Vec3(Structure):
 
     def __rmul__(self, other: typing.Union["Vec3", float]) -> "Vec3":
         return self.__mul__(other)
-
-    def __neg__(self) -> "Vec3":
-        return Vec3(-self.x, -self.y, -self.z)
 
     def __truediv__(self, other: typing.Union["Vec3", float]) -> "Vec3":
         if isinstance(other, float):

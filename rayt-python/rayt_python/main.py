@@ -13,8 +13,8 @@ from rayt_python.material import Dielectric, Lambertian, Metal
 from rayt_python.ray import Ray
 from rayt_python.sphere import Sphere
 from rayt_python.utils import random_double
-from rayt_python.vec3 import Color, Point3, Vec3, unit_vector
-from rayt_python.vec3_2 import Vec3 as Vec3_2
+from rayt_python.vec3 import Vec3, Color, Point3
+from rayt_python.vec3_old import unit_vector
 
 
 def ray_color(ray: Ray, world: Hittable, depth: int) -> Color:
