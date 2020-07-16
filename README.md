@@ -42,10 +42,3 @@ python -m scalene rayt_python/main.py --html --outfile scalene.html
 python -m pytest -s
 python -m pytest -s -k test_subtraction
 ```
-
-### TODO
-
-- [ ] immutable objects conversion.
-- [ ] inline functions conversion.
-- [ ] use dataclass for structure types.
-- [ ] use async for performance improvements.
