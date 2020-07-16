@@ -39,6 +39,8 @@ For development:
 ```
 pip install -r requirements-dev.txt
 python -m scalene rayt_python/main.py --html --outfile scalene.html
+python -m pytest -s
+python -m pytest -s -k test_subtraction
 ```
 
 ### TODO
