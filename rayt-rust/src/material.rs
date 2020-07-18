@@ -6,9 +6,10 @@ use crate::{
 };
 
 pub(crate) trait Material {
-    fn scatter(self, r_in: &Ray, rec: &HitRecord) -> Option<(Ray, Color)>;
+    fn scatter(self, r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)>;
 }
 
+#[derive(Copy, Clone)]
 pub(crate) struct Lambertian {
     albedo: Color,
 }
@@ -20,7 +21,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(self, r_in: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
+    fn scatter(self, _r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)> {
         let scatter_direction = rec.normal + random_unit_vector();
         let scattered = Ray::new(rec.p, scatter_direction);
         let attenuation = self.albedo;
@@ -28,6 +29,7 @@ impl Material for Lambertian {
     }
 }
 
+#[derive(Copy, Clone)]
 pub(crate) struct Metal {
     albedo: Color,
     fuzz: f64,
@@ -43,7 +45,7 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(self, r_in: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
+    fn scatter(self, r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)> {
         let reflected = reflect(unit_vector(r_in.direction), rec.normal);
         let scattered = Ray::new(rec.p, reflected + self.fuzz * random_in_unit_sphere());
         let attenuation = self.albedo;
@@ -55,6 +57,7 @@ impl Material for Metal {
     }
 }
 
+#[derive(Copy, Clone)]
 pub(crate) struct Dielectric {
     ref_idx: f64,
 }
@@ -66,7 +69,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(self, r_in: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
+    fn scatter(self, r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)> {
         let attenuation = Color::from([1.0, 1.0, 1.0]);
         let etai_over_etat = if rec.front_face {
             1.0 / self.ref_idx

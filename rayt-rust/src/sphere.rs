@@ -20,7 +20,7 @@ impl Sphere {
         }
     }
 
-    fn create_rec(self, r: &Ray, t: f64) -> HitRecord {
+    fn create_rec(&self, r: &Ray, t: f64) -> HitRecord {
         let p = r.at(t);
         let mut rec = HitRecord::new(&p, t, self.material);
         rec.set_face_normal(r, &((p - self.center) / self.radius));
@@ -38,7 +38,7 @@ impl Hittable for Sphere {
 
         if discriminant > 0.0 {
             let root = f64::sqrt(discriminant);
-            let temp = (-half_b - root) / a;
+            let mut temp = (-half_b - root) / a;
             if temp < t_max && temp > t_min {
                 return Some(self.create_rec(r, temp));
             }
