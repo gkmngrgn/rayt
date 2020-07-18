@@ -9,6 +9,6 @@ fn get_color_str(pixel_color: Color, samples_per_pixel: usize) -> String {
     format!("{} {} {}", r, g, b)
 }
 
-pub fn write_color(pixel_color: Color, samples_per_pixel: usize) {
+pub(crate) fn write_color(pixel_color: Color, samples_per_pixel: usize) {
     println!("{}", get_color_str(pixel_color, samples_per_pixel));
 }

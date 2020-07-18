@@ -8,11 +8,11 @@ use crate::{
 pub(crate) struct Sphere {
     center: Point3,
     radius: f64,
-    material: Box<dyn Material>,
+    material: Material,
 }
 
 impl Sphere {
-    pub(crate) fn new(center: Point3, radius: f64, material: Box<dyn Material>) -> Self {
+    pub(crate) fn new(center: Point3, radius: f64, material: Material) -> Self {
         Self {
             center,
             radius,
@@ -22,7 +22,7 @@ impl Sphere {
 
     fn create_rec(&self, r: &Ray, t: f64) -> HitRecord {
         let p = r.at(t);
-        let mut rec = HitRecord::new(&p, t, self.material);
+        let mut rec = HitRecord::new(&p, t, &self.material);
         rec.set_face_normal(r, &((p - self.center) / self.radius));
         rec
     }

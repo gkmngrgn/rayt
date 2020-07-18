@@ -5,8 +5,39 @@ use crate::{
     vec3::{dot, random_in_unit_sphere, random_unit_vector, reflect, refract, unit_vector, Color},
 };
 
-pub(crate) trait Material {
+pub(crate) trait Scatter {
     fn scatter(self, r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)>;
+}
+
+#[derive(Copy, Clone)]
+pub(crate) enum Material {
+    Lambertian(Lambertian),
+    Metal(Metal),
+    Dielectric(Dielectric),
+}
+
+impl Material {
+    pub(crate) fn new_lambertian(albedo: Color) -> Self {
+        Material::Lambertian(Lambertian::new(albedo))
+    }
+
+    pub(crate) fn new_metal(albedo: Color, fuzz: f64) -> Self {
+        Material::Metal(Metal::new(albedo, fuzz))
+    }
+
+    pub(crate) fn new_dielectric(ref_idx: f64) -> Self {
+        Material::Dielectric(Dielectric::new(ref_idx))
+    }
+}
+
+impl Scatter for Material {
+    fn scatter(self, r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)> {
+        match self {
+            Material::Lambertian(m) => m.scatter(r_in, rec),
+            Material::Metal(m) => m.scatter(r_in, rec),
+            Material::Dielectric(m) => m.scatter(r_in, rec),
+        }
+    }
 }
 
 #[derive(Copy, Clone)]
@@ -15,12 +46,12 @@ pub(crate) struct Lambertian {
 }
 
 impl Lambertian {
-    pub(crate) fn new(albedo: Color) -> Self {
+    fn new(albedo: Color) -> Self {
         Self { albedo }
     }
 }
 
-impl Material for Lambertian {
+impl Scatter for Lambertian {
     fn scatter(self, _r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)> {
         let scatter_direction = rec.normal + random_unit_vector();
         let scattered = Ray::new(rec.p, scatter_direction);
@@ -36,7 +67,7 @@ pub(crate) struct Metal {
 }
 
 impl Metal {
-    pub(crate) fn new(albedo: Color, fuzz: f64) -> Self {
+    fn new(albedo: Color, fuzz: f64) -> Self {
         Self {
             albedo,
             fuzz: if fuzz < 1.0 { fuzz } else { 1.0 },
@@ -44,7 +75,7 @@ impl Metal {
     }
 }
 
-impl Material for Metal {
+impl Scatter for Metal {
     fn scatter(self, r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)> {
         let reflected = reflect(unit_vector(r_in.direction), rec.normal);
         let scattered = Ray::new(rec.p, reflected + self.fuzz * random_in_unit_sphere());
@@ -63,12 +94,12 @@ pub(crate) struct Dielectric {
 }
 
 impl Dielectric {
-    pub(crate) fn new(ref_idx: f64) -> Self {
+    fn new(ref_idx: f64) -> Self {
         Self { ref_idx }
     }
 }
 
-impl Material for Dielectric {
+impl Scatter for Dielectric {
     fn scatter(self, r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)> {
         let attenuation = Color::from([1.0, 1.0, 1.0]);
         let etai_over_etat = if rec.front_face {

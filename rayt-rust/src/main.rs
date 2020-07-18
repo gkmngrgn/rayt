@@ -18,14 +18,14 @@ use crate::{
     vec3::{unit_vector, Color, Point3, Vec3},
 };
 use hittable::Hittable;
-use material::{Dielectric, Lambertian, Metal};
+use material::{Material, Scatter};
 
 #[macro_use]
 extern crate itertools;
 
 fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
     // FIXME: don't use recursive here. take a look at the Python code.
-    if depth <= 0 {
+    if depth == 0 {
         return Color::from([0.0, 0.0, 0.0]);
     }
 
@@ -44,47 +44,35 @@ fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
 
 fn random_scene() -> HittableList {
     let mut world = HittableList::default();
-    let ground_material = Lambertian::new(Color::from([0.5, 0.5, 0.5]));
+    let ground_material = Material::new_lambertian(Color::from([0.5, 0.5, 0.5]));
     world.add(Sphere::new(
         Point3::from([0.0, -1000.0, 0.0]),
         1000.0,
-        Box::new(ground_material),
+        ground_material,
     ));
 
     // TODO: add small materials here.
 
-    let material_1 = Dielectric::new(1.5);
-    world.add(Sphere::new(
-        Point3::from([0.0, 1.0, 0.0]),
-        1.0,
-        Box::new(material_1),
-    ));
+    let material_1 = Material::new_dielectric(1.5);
+    world.add(Sphere::new(Point3::from([0.0, 1.0, 0.0]), 1.0, material_1));
 
-    let material_2 = Lambertian::new(Color::from([0.4, 0.2, 0.1]));
-    world.add(Sphere::new(
-        Point3::from([-4.0, 1.0, 0.0]),
-        1.0,
-        Box::new(material_2),
-    ));
+    let material_2 = Material::new_lambertian(Color::from([0.4, 0.2, 0.1]));
+    world.add(Sphere::new(Point3::from([-4.0, 1.0, 0.0]), 1.0, material_2));
 
-    let material_3 = Metal::new(Color::from([0.7, 0.6, 0.5]), 0.0);
-    world.add(Sphere::new(
-        Point3::from([4.0, 1.0, 0.0]),
-        1.0,
-        Box::new(material_3),
-    ));
+    let material_3 = Material::new_metal(Color::from([0.7, 0.6, 0.5]), 0.0);
+    world.add(Sphere::new(Point3::from([4.0, 1.0, 0.0]), 1.0, material_3));
 
     world
 }
 
 fn main() {
-    const aspect_ratio: f64 = 16.0 / 9.0;
-    const image_width: u32 = 300;
-    const image_height: u32 = ((image_width as f64) / aspect_ratio) as u32;
-    const samples_per_pixel: usize = 20;
-    const max_depth: usize = 50;
+    const ASPECT_RATIO: f64 = 16.0 / 9.0;
+    const IMAGE_WIDTH: u32 = 300;
+    const IMAGE_HEIGHT: u32 = ((IMAGE_WIDTH as f64) / ASPECT_RATIO) as u32;
+    const SAMPLES_PER_PIXEL: usize = 20;
+    const MAX_DEPTH: usize = 50;
 
-    println!("P3\n{} {}\n255\n", image_width, image_height);
+    println!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);
 
     let world = random_scene();
     let lookfrom = Point3::from([13.0, 2.0, 3.0]);
@@ -98,24 +86,24 @@ fn main() {
         lookat,
         vup,
         20.0,
-        aspect_ratio,
+        ASPECT_RATIO,
         aperture,
         dist_to_focus,
     );
 
-    for (j, i) in iproduct!((0..image_height).rev(), (0..image_width)) {
-        if i > 0 && image_width % i == 0 {
+    for (j, i) in iproduct!((0..IMAGE_HEIGHT).rev(), (0..IMAGE_WIDTH)) {
+        if i > 0 && IMAGE_WIDTH % i == 0 {
             eprint!("\rScanlines remaining: {}", j);
         }
-        let pixel_color = (1..=samples_per_pixel)
+        let pixel_color = (1..=SAMPLES_PER_PIXEL)
             .map(|_| {
-                let u = (i as f64 + random_double!()) / (image_width - 1) as f64;
-                let v = (j as f64 + random_double!()) / (image_height - 1) as f64;
+                let u = (i as f64 + random_double!()) / (IMAGE_WIDTH - 1) as f64;
+                let v = (j as f64 + random_double!()) / (IMAGE_HEIGHT - 1) as f64;
                 let r = cam.get_ray(u, v);
-                ray_color(&r, &world, max_depth)
+                ray_color(&r, &world, MAX_DEPTH)
             })
             .fold(Color::from([0.0, 0.0, 0.0]), |sum, c| sum + c);
-        write_color(pixel_color, samples_per_pixel);
+        write_color(pixel_color, SAMPLES_PER_PIXEL);
     }
 
     eprintln!("\nDone.");
