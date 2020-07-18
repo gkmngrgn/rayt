@@ -1,7 +1,7 @@
 use crate::{random_double, utils::PI};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Clone, Copy, Default)]
+#[derive(Debug, PartialEq, Clone, Copy, Default)]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,
