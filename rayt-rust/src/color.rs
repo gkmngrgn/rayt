@@ -1,5 +1,4 @@
-use crate::utils::clamp;
-use crate::vec3::Color;
+use crate::{utils::clamp, vec3::Color};
 
 fn get_color_str(pixel_color: Color, samples_per_pixel: usize) -> String {
     let scale = 1.0 / samples_per_pixel as f64;

@@ -8,16 +8,17 @@ mod sphere;
 mod utils;
 mod vec3;
 
-use crate::camera::Camera;
-use crate::color::write_color;
-use crate::hittable::HitRecord;
-use crate::hittable_list::HittableList;
-use crate::material::Material;
-use crate::ray::Ray;
-use crate::sphere::Sphere;
-use crate::utils::INFINITY;
-use crate::vec3::{unit_vector, Color, Point3, Vec3};
+use crate::{
+    camera::Camera,
+    color::write_color,
+    hittable_list::HittableList,
+    ray::Ray,
+    sphere::Sphere,
+    utils::INFINITY,
+    vec3::{unit_vector, Color, Point3, Vec3},
+};
 use hittable::Hittable;
+use material::{Dielectric, Lambertian, Metal};
 
 #[macro_use]
 extern crate itertools;
@@ -28,12 +29,8 @@ fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
         return Color::from([0.0, 0.0, 0.0]);
     }
 
-    let mut rec = HitRecord::default();
-
-    if world.hit(r, 0.001, INFINITY, &mut rec) {
-        let scattered: Ray;
-        let attenuation: Color;
-        if rec.material.scatter(r, rec, attenuation, scattered) {
+    if let Some(rec) = world.hit(r, 0.001, INFINITY) {
+        if let Some((scattered, attenuation)) = rec.material.scatter(r, &rec) {
             let r_color: Color = ray_color(&scattered, world, depth - 1);
             return attenuation * r_color;
         }
@@ -46,24 +43,36 @@ fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
 }
 
 fn random_scene() -> HittableList {
-    let world = HittableList::default();
-    let ground_material = Material::new_lambertian(Color::from([0.5, 0.5, 0.5]));
+    let mut world = HittableList::default();
+    let ground_material = Lambertian::new(Color::from([0.5, 0.5, 0.5]));
     world.add(Sphere::new(
         Point3::from([0.0, -1000.0, 0.0]),
         1000.0,
-        ground_material,
+        Box::new(ground_material),
     ));
 
     // TODO: add small materials here.
 
-    let material_1 = Material::new_dielectric(1.5);
-    world.add(Sphere::new(Point3::from([0.0, 1.0, 0.0]), 1.0, material_1));
+    let material_1 = Dielectric::new(1.5);
+    world.add(Sphere::new(
+        Point3::from([0.0, 1.0, 0.0]),
+        1.0,
+        Box::new(material_1),
+    ));
 
-    let material_2 = Material::new_lambertian(Color::from([0.4, 0.2, 0.1]));
-    world.add(Sphere::new(Point3::from([-4.0, 1.0, 0.0]), 1.0, material_2));
+    let material_2 = Lambertian::new(Color::from([0.4, 0.2, 0.1]));
+    world.add(Sphere::new(
+        Point3::from([-4.0, 1.0, 0.0]),
+        1.0,
+        Box::new(material_2),
+    ));
 
-    let material_3 = Material::new_metal(Color::from([0.7, 0.6, 0.5]), 0.0);
-    world.add(Sphere::new(Point3::from([4.0, 1.0, 0.0]), 1.0, material_3));
+    let material_3 = Metal::new(Color::from([0.7, 0.6, 0.5]), 0.0);
+    world.add(Sphere::new(
+        Point3::from([4.0, 1.0, 0.0]),
+        1.0,
+        Box::new(material_3),
+    ));
 
     world
 }

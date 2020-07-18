@@ -1,6 +1,6 @@
-use crate::utils::degrees_to_radians;
 use crate::{
     ray::Ray,
+    utils::degrees_to_radians,
     vec3::{cross, random_in_unit_disk, unit_vector, Point3, Vec3},
 };
 
