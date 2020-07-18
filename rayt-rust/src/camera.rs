@@ -4,7 +4,7 @@ use crate::{
     vec3::{cross, random_in_unit_disk, unit_vector, Point3, Vec3},
 };
 
-pub(crate) struct Camera {
+pub struct Camera {
     origin: Point3,
     lower_left_corner: Point3,
     horizontal: Vec3,
@@ -16,7 +16,7 @@ pub(crate) struct Camera {
 }
 
 impl Camera {
-    pub(crate) fn new(
+    pub fn new(
         lookfrom: Point3,
         lookat: Point3,
         vup: Vec3,
@@ -52,7 +52,7 @@ impl Camera {
         }
     }
 
-    pub(crate) fn get_ray(&self, s: f64, t: f64) -> Ray {
+    pub fn get_ray(&self, s: f64, t: f64) -> Ray {
         let rd = self.lens_radius * random_in_unit_disk();
         let offset = self.u * rd.x + self.v * rd.y;
         Ray::new(

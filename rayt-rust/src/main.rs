@@ -1,27 +1,17 @@
-mod camera;
-mod color;
-mod hittable;
-mod hittable_list;
-mod material;
-mod ray;
-mod sphere;
-mod utils;
-mod vec3;
-
-use crate::{
+use rayt::{
     camera::Camera,
     color::write_color,
+    hittable::Hittable,
     hittable_list::HittableList,
+    material::{Material, Scatter},
     ray::Ray,
     sphere::Sphere,
     utils::INFINITY,
     vec3::{unit_vector, Color, Point3, Vec3},
 };
-use hittable::Hittable;
-use material::{Material, Scatter};
 
 #[macro_use]
-extern crate itertools;
+extern crate rayt;
 
 fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
     // FIXME: don't use recursive here. take a look at the Python code.
@@ -51,7 +41,30 @@ fn random_scene() -> HittableList {
         ground_material,
     ));
 
-    // TODO: add small materials here.
+    // for a in -11..11 {
+    //     for b in -11..11 {
+    //         let choose_mat = random_double!();
+    //         let center = Point3::from([
+    //             a as f64 + 0.9 * random_double!(),
+    //             0.2,
+    //             b as f64 + 0.9 * random_double!(),
+    //         ]);
+
+    //         if (center - Point3::from([4.0, 0.2, 0.0])).length() > 0.9 {
+    //             let sphere_material = if choose_mat < 0.8 {
+    //                 let albedo = Color::random(None) * Color::random(None);
+    //                 Material::new_lambertian(albedo)
+    //             } else if choose_mat < 0.95 {
+    //                 let albedo = Color::random(Some([0.5, 1.0]));
+    //                 let fuzz = random_double!(0.0, 0.5);
+    //                 Material::new_metal(albedo, fuzz)
+    //             } else {
+    //                 Material::new_dielectric(1.5)
+    //             };
+    //             world.add(Sphere::new(center, 0.2, sphere_material));
+    //         }
+    //     }
+    // }
 
     let material_1 = Material::new_dielectric(1.5);
     world.add(Sphere::new(Point3::from([0.0, 1.0, 0.0]), 1.0, material_1));
@@ -91,19 +104,20 @@ fn main() {
         dist_to_focus,
     );
 
-    for (j, i) in iproduct!((0..IMAGE_HEIGHT).rev(), (0..IMAGE_WIDTH)) {
-        if i > 0 && IMAGE_WIDTH % i == 0 {
-            eprint!("\rScanlines remaining: {}", j);
+    for j in (0..IMAGE_HEIGHT).rev() {
+        eprint!("\rScanlines remaining: {} ", j);
+
+        for i in 0..IMAGE_WIDTH {
+            let pixel_color = (1..=SAMPLES_PER_PIXEL)
+                .map(|_| {
+                    let u = (i as f64 + random_double!()) / (IMAGE_WIDTH - 1) as f64;
+                    let v = (j as f64 + random_double!()) / (IMAGE_HEIGHT - 1) as f64;
+                    let r = cam.get_ray(u, v);
+                    ray_color(&r, &world, MAX_DEPTH)
+                })
+                .fold(Color::from([0.0, 0.0, 0.0]), |sum, c| sum + c);
+            write_color(pixel_color, SAMPLES_PER_PIXEL);
         }
-        let pixel_color = (1..=SAMPLES_PER_PIXEL)
-            .map(|_| {
-                let u = (i as f64 + random_double!()) / (IMAGE_WIDTH - 1) as f64;
-                let v = (j as f64 + random_double!()) / (IMAGE_HEIGHT - 1) as f64;
-                let r = cam.get_ray(u, v);
-                ray_color(&r, &world, MAX_DEPTH)
-            })
-            .fold(Color::from([0.0, 0.0, 0.0]), |sum, c| sum + c);
-        write_color(pixel_color, SAMPLES_PER_PIXEL);
     }
 
     eprintln!("\nDone.");

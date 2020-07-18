@@ -5,14 +5,14 @@ use crate::{
     vec3::{dot, Point3},
 };
 
-pub(crate) struct Sphere {
+pub struct Sphere {
     center: Point3,
     radius: f64,
     material: Material,
 }
 
 impl Sphere {
-    pub(crate) fn new(center: Point3, radius: f64, material: Material) -> Self {
+    pub fn new(center: Point3, radius: f64, material: Material) -> Self {
         Self {
             center,
             radius,

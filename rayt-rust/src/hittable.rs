@@ -4,16 +4,16 @@ use crate::{
     vec3::{dot, Point3, Vec3},
 };
 
-pub(crate) struct HitRecord {
-    pub(crate) p: Point3,
-    pub(crate) normal: Vec3,
-    pub(crate) material: Material,
-    pub(crate) t: f64,
-    pub(crate) front_face: bool,
+pub struct HitRecord {
+    pub p: Point3,
+    pub normal: Vec3,
+    pub material: Material,
+    pub t: f64,
+    pub front_face: bool,
 }
 
 impl HitRecord {
-    pub(crate) fn new(p: &Point3, t: f64, material: &Material) -> Self {
+    pub fn new(p: &Point3, t: f64, material: &Material) -> Self {
         Self {
             p: p.clone(),
             normal: Vec3::default(),
@@ -23,7 +23,7 @@ impl HitRecord {
         }
     }
 
-    pub(crate) fn set_face_normal(&mut self, r: &Ray, outward_normal: &Vec3) {
+    pub fn set_face_normal(&mut self, r: &Ray, outward_normal: &Vec3) {
         self.front_face = dot(&r.direction, outward_normal) < 0.0;
         self.normal = if self.front_face {
             *outward_normal
@@ -33,6 +33,6 @@ impl HitRecord {
     }
 }
 
-pub(crate) trait Hittable {
+pub trait Hittable {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }

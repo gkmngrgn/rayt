@@ -5,12 +5,12 @@ use crate::{
 };
 
 #[derive(Default)]
-pub(crate) struct HittableList {
+pub struct HittableList {
     objects: Vec<Sphere>,
 }
 
 impl HittableList {
-    pub(crate) fn add(&mut self, object: Sphere) {
+    pub fn add(&mut self, object: Sphere) {
         self.objects.push(object);
     }
 }

@@ -5,27 +5,27 @@ use crate::{
     vec3::{dot, random_in_unit_sphere, random_unit_vector, reflect, refract, unit_vector, Color},
 };
 
-pub(crate) trait Scatter {
+pub trait Scatter {
     fn scatter(self, r_in: &Ray, rec: HitRecord) -> Option<(Ray, Color)>;
 }
 
 #[derive(Copy, Clone)]
-pub(crate) enum Material {
+pub enum Material {
     Lambertian(Lambertian),
     Metal(Metal),
     Dielectric(Dielectric),
 }
 
 impl Material {
-    pub(crate) fn new_lambertian(albedo: Color) -> Self {
+    pub fn new_lambertian(albedo: Color) -> Self {
         Material::Lambertian(Lambertian::new(albedo))
     }
 
-    pub(crate) fn new_metal(albedo: Color, fuzz: f64) -> Self {
+    pub fn new_metal(albedo: Color, fuzz: f64) -> Self {
         Material::Metal(Metal::new(albedo, fuzz))
     }
 
-    pub(crate) fn new_dielectric(ref_idx: f64) -> Self {
+    pub fn new_dielectric(ref_idx: f64) -> Self {
         Material::Dielectric(Dielectric::new(ref_idx))
     }
 }
@@ -41,7 +41,7 @@ impl Scatter for Material {
 }
 
 #[derive(Copy, Clone)]
-pub(crate) struct Lambertian {
+pub struct Lambertian {
     albedo: Color,
 }
 
@@ -61,7 +61,7 @@ impl Scatter for Lambertian {
 }
 
 #[derive(Copy, Clone)]
-pub(crate) struct Metal {
+pub struct Metal {
     albedo: Color,
     fuzz: f64,
 }
@@ -89,7 +89,7 @@ impl Scatter for Metal {
 }
 
 #[derive(Copy, Clone)]
-pub(crate) struct Dielectric {
+pub struct Dielectric {
     ref_idx: f64,
 }
 

@@ -20,11 +20,11 @@ macro_rules! random_double {
 }
 
 // Utility functions
-pub(crate) fn degrees_to_radians(degrees: f64) -> f64 {
+pub fn degrees_to_radians(degrees: f64) -> f64 {
     degrees * PI / 180_f64
 }
 
-pub(crate) fn clamp(x: f64, min: f64, max: f64) -> f64 {
+pub fn clamp(x: f64, min: f64, max: f64) -> f64 {
     match x {
         n if n < min => min,
         n if n > max => max,
