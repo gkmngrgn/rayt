@@ -13,11 +13,11 @@ pub struct HitRecord {
 }
 
 impl HitRecord {
-    pub fn new(p: &Point3, t: f64, material: &Material) -> Self {
+    pub fn new(p: Point3, normal: Vec3, t: f64, material: Material) -> Self {
         Self {
-            p: p.clone(),
-            normal: Vec3::default(),
-            material: *material,
+            p,
+            normal,
+            material,
             t,
             front_face: false,
         }

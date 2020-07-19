@@ -64,3 +64,8 @@ fn test_vec3_length() {
     assert_eq!(14.0, vec3_1.length_squared());
     assert_eq!(3.7416573867739413, vec3_1.length());
 }
+
+#[test]
+fn test_default_color() {
+    assert_eq!(Color::from([0.0, 0.0, 0.0]), Color::default());
+}

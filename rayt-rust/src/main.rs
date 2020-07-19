@@ -16,15 +16,14 @@ extern crate rayt;
 fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
     // FIXME: don't use recursive here. take a look at the Python code.
     if depth == 0 {
-        return Color::from([0.0, 0.0, 0.0]);
+        return Color::default();
     }
 
     if let Some(rec) = world.hit(r, 0.001, INFINITY) {
         if let Some((scattered, attenuation)) = rec.material.scatter(r, rec) {
-            let r_color: Color = ray_color(&scattered, world, depth - 1);
-            return attenuation * r_color;
+            return attenuation * ray_color(&scattered, world, depth - 1);
         }
-        return Color::from([0.0, 0.0, 0.0]);
+        return Color::default();
     }
 
     let unit_direction = unit_vector(r.direction);
@@ -85,11 +84,13 @@ fn main() {
     const SAMPLES_PER_PIXEL: usize = 20;
     const MAX_DEPTH: usize = 50;
 
-    println!("P3\n{} {}\n255\n", IMAGE_WIDTH, IMAGE_HEIGHT);
+    println!("P3");
+    println!("{} {}", IMAGE_WIDTH, IMAGE_HEIGHT);
+    println!("255");
 
     let world = random_scene();
     let lookfrom = Point3::from([13.0, 2.0, 3.0]);
-    let lookat = Point3::from([0.0, 0.0, 0.0]);
+    let lookat = Point3::default();
     let vup = Vec3::from([0.0, 1.0, 0.0]);
     let dist_to_focus = 10.0;
     let aperture = 0.1;
@@ -115,10 +116,10 @@ fn main() {
                     let r = cam.get_ray(u, v);
                     ray_color(&r, &world, MAX_DEPTH)
                 })
-                .fold(Color::from([0.0, 0.0, 0.0]), |sum, c| sum + c);
+                .fold(Color::default(), |sum, c| sum + c);
             write_color(pixel_color, SAMPLES_PER_PIXEL);
         }
     }
 
-    eprintln!("\nDone.");
+    eprintln!("Done.");
 }

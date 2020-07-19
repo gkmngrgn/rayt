@@ -107,26 +107,20 @@ impl Scatter for Dielectric {
         } else {
             self.ref_idx
         };
-
         let unit_direction = unit_vector(r_in.direction);
         let cos_theta = f64::min(dot(&-unit_direction, &rec.normal), 1.0);
         let sin_theta = f64::sqrt(1.0 - cos_theta.powi(2));
-
-        if etai_over_etat * sin_theta > 1.0 {
+        let scattered = if etai_over_etat * sin_theta > 1.0 {
             let reflected = reflect(unit_direction, rec.normal);
-            let scattered = Ray::new(rec.p, reflected);
-            return Some((scattered, attenuation));
-        }
-
-        let reflect_prob = schlick(cos_theta, etai_over_etat);
-        if random_double!() < reflect_prob {
+            Ray::new(rec.p, reflected)
+        } else if random_double!() < schlick(cos_theta, etai_over_etat) {
             let reflected = reflect(unit_direction, rec.normal);
-            let scattered = Ray::new(rec.p, reflected);
-            return Some((scattered, attenuation));
-        }
+            Ray::new(rec.p, reflected)
+        } else {
+            let refracted = refract(unit_direction, rec.normal, etai_over_etat);
+            Ray::new(rec.p, refracted)
+        };
 
-        let refracted = refract(unit_direction, rec.normal, etai_over_etat);
-        let scattered = Ray::new(rec.p, refracted);
         Some((scattered, attenuation))
     }
 }
