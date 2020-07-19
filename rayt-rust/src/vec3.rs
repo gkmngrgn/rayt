@@ -1,7 +1,8 @@
 use crate::{random_double, utils::PI};
+use std::fmt;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Debug, PartialEq, Clone, Copy, Default)]
+#[derive(PartialEq, Clone, Copy, Default)]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,
@@ -23,6 +24,12 @@ impl Vec3 {
 
     pub fn length_squared(self) -> f64 {
         self.x.powi(2) + self.y.powi(2) + self.z.powi(2)
+    }
+}
+
+impl fmt::Debug for Vec3 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Vec3 ({:?}, {:?}, {:?})", self.x, self.y, self.z)
     }
 }
 
@@ -89,6 +96,18 @@ impl Mul<Vec3> for f64 {
 
     fn mul(self, rhs: Vec3) -> Self::Output {
         rhs * self
+    }
+}
+
+impl Div<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: Vec3) -> Self::Output {
+        Self::Output {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+            z: self.z / rhs.z,
+        }
     }
 }
 

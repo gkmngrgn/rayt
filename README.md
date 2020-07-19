@@ -40,7 +40,11 @@ sys     0m0,009s
 
 ## Build Rust Project
 
-**TODO:**
+I'll add a screenshot when the Rust project is ready.
+
+```
+cargo run > image.ppm
+```
 
 ## Build Python Project
 
@@ -65,7 +69,7 @@ python -m pytest -s -k test_subtraction
 
 Performance status:
 ```
-❯ time python -m rayt_python.main > image.ppm
+time python -m rayt_python.main > image.ppm
 Scanlines remaining: 1
 Done.
 

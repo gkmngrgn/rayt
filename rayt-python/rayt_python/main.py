@@ -53,17 +53,16 @@ def random_scene() -> HittableList:
                 # diffuse
                 albedo = Color.random() * Color.random()
                 sphere_material = Lambertian(albedo)
-                world.add(Sphere(center, 0.2, sphere_material))
             elif choose_mat < 0.95:
                 # metal
                 albedo = Color.random(0.5, 1.0)
                 fuzz = random_double(0.0, 0.5)
                 sphere_material = Metal(albedo, fuzz)
-                world.add(Sphere(center, 0.2, sphere_material))
             else:
                 # glass
                 sphere_material = Dielectric(1.5)
-                world.add(Sphere(center, 0.2, sphere_material))
+
+            world.add(Sphere(center, 0.2, sphere_material))
 
     material_1 = Dielectric(1.5)
     world.add(Sphere(Point3(0.0, 1.0, 0.0), 1.0, material_1))
@@ -78,7 +77,7 @@ def random_scene() -> HittableList:
 
 
 def consume_color(
-    width, height, cam, world, max_depth, samples_per_pixel, queue, coord
+        width, height, cam, world, max_depth, samples_per_pixel, queue, coord
 ):
     pixel_color = Color(0.0, 0.0, 0.0)
     j, i = coord

@@ -41,30 +41,30 @@ fn random_scene() -> HittableList {
         ground_material,
     ));
 
-    // for a in -11..11 {
-    //     for b in -11..11 {
-    //         let choose_mat = random_double!();
-    //         let center = Point3::from([
-    //             a as f64 + 0.9 * random_double!(),
-    //             0.2,
-    //             b as f64 + 0.9 * random_double!(),
-    //         ]);
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat = random_double!();
+            let center = Point3::from([
+                a as f64 + 0.9 * random_double!(),
+                0.2,
+                b as f64 + 0.9 * random_double!(),
+            ]);
 
-    //         if (center - Point3::from([4.0, 0.2, 0.0])).length() > 0.9 {
-    //             let sphere_material = if choose_mat < 0.8 {
-    //                 let albedo = Color::random(None) * Color::random(None);
-    //                 Material::new_lambertian(albedo)
-    //             } else if choose_mat < 0.95 {
-    //                 let albedo = Color::random(Some([0.5, 1.0]));
-    //                 let fuzz = random_double!(0.0, 0.5);
-    //                 Material::new_metal(albedo, fuzz)
-    //             } else {
-    //                 Material::new_dielectric(1.5)
-    //             };
-    //             world.add(Sphere::new(center, 0.2, sphere_material));
-    //         }
-    //     }
-    // }
+            if (center - Point3::from([4.0, 0.2, 0.0])).length() > 0.9 {
+                let sphere_material = if choose_mat < 0.8 {
+                    let albedo = Color::random(None) * Color::random(None);
+                    Material::new_lambertian(albedo)
+                } else if choose_mat < 0.95 {
+                    let albedo = Color::random(Some([0.5, 1.0]));
+                    let fuzz = random_double!(0.0, 0.5);
+                    Material::new_metal(albedo, fuzz)
+                } else {
+                    Material::new_dielectric(1.5)
+                };
+                world.add(Sphere::new(center, 0.2, sphere_material));
+            }
+        }
+    }
 
     let material_1 = Material::new_dielectric(1.5);
     world.add(Sphere::new(Point3::from([0.0, 1.0, 0.0]), 1.0, material_1));
