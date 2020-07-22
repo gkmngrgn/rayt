@@ -40,6 +40,8 @@ sys     0m0,009s
 
 ## Build Rust Project
 
+![](assets/rayt-rust.png)
+
 I'll add a screenshot when the Rust project is ready.
 
 ```

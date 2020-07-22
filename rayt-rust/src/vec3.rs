@@ -137,7 +137,7 @@ pub type Color = Vec3; // RGB color
 
 // Vec3 utility functions
 pub fn dot(u: &Vec3, v: &Vec3) -> f64 {
-    u.x * v.x + u.y * v.y + u.z + v.z
+    u.x * v.x + u.y * v.y + u.z * v.z
 }
 
 pub fn cross(u: Vec3, v: Vec3) -> Vec3 {

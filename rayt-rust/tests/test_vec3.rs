@@ -1,3 +1,5 @@
+use float_cmp::approx_eq;
+
 use rayt::vec3::{Color, Point3, Vec3};
 
 #[test]
@@ -61,8 +63,13 @@ fn test_true_division() {
 #[test]
 fn test_vec3_length() {
     let vec3_1 = Vec3::from([1.0, 2.0, 3.0]);
-    assert_eq!(14.0, vec3_1.length_squared());
-    assert_eq!(3.7416573867739413, vec3_1.length());
+    assert!(approx_eq!(f64, 14.0, vec3_1.length_squared(), ulps = 2));
+    assert!(approx_eq!(
+        f64,
+        3.7416573867739413,
+        vec3_1.length(),
+        ulps = 2
+    ));
 }
 
 #[test]

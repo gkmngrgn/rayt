@@ -110,10 +110,9 @@ impl Scatter for Dielectric {
         let unit_direction = unit_vector(r_in.direction);
         let cos_theta = f64::min(dot(&-unit_direction, &rec.normal), 1.0);
         let sin_theta = f64::sqrt(1.0 - cos_theta.powi(2));
-        let scattered = if etai_over_etat * sin_theta > 1.0 {
-            let reflected = reflect(unit_direction, rec.normal);
-            Ray::new(rec.p, reflected)
-        } else if random_double!() < schlick(cos_theta, etai_over_etat) {
+        let scattered = if etai_over_etat * sin_theta > 1.0
+            || random_double!() < schlick(cos_theta, etai_over_etat)
+        {
             let reflected = reflect(unit_direction, rec.normal);
             Ray::new(rec.p, reflected)
         } else {
