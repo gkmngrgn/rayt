@@ -26,9 +26,21 @@ cdef class Vec3:
         cdef Vec3 result = Vec3(x.x + y.x, x.y + y.y, x.z + y.z)
         return result
 
+    def __iadd__(Vec3 self, Vec3 x):
+        self.x += x.x
+        self.y += x.y
+        self.z += x.z
+        return self
+
     def __sub__(Vec3 x, Vec3 y):
         cdef Vec3 result = Vec3(x.x - y.x, x.y - y.y, x.z - y.z)
         return result
+
+    def __isub__(Vec3 self, Vec3 x):
+        self.x -= x.x
+        self.y -= x.y
+        self.z -= x.z
+        return self
 
     def __mul__(x, y):
         cdef Vec3 result
@@ -44,6 +56,18 @@ cdef class Vec3:
             )
         return result
 
+    def __imul__(Vec3 self, x):
+        cdef float e1, e2, e3
+        if isinstance(x, float):
+            (e1, e2, e3) = (x, x, x)
+        else:
+            (e1, e2, e3) = (x.x, x.y, x.z)
+
+        self.x *= e1
+        self.y *= e2
+        self.z *= e3
+        return self
+
     def __truediv__(x, y):
         cdef Vec3 result
         if isinstance(x, float):
@@ -57,6 +81,16 @@ cdef class Vec3:
                 (<Vec3>x).z / (<Vec3>y).z,
             )
         return result
+
+    def __itruediv__(Vec3 self, x):
+        cdef Vec3 result
+        if isinstance(x, float):
+            self.__imul__(self, 1 / x)
+        else:
+            self.x /= x.x
+            self.y /= x.y
+            self.z /= x.z
+        return self
 
     @classmethod
     def random(cls, double min=0.0, double max=1.0):

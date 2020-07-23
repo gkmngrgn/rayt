@@ -75,7 +75,7 @@ time python -m rayt_python.main > image.ppm
 Scanlines remaining: 1
 Done.
 
-real    9m58,097s
-user    31m7,720s
-sys     0m3,620s
+real    9m10,505s
+user    29m21,547s
+sys     0m3,749s
 ```
