@@ -6,7 +6,11 @@ Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.git
 
 ## Build C++ Project
 
-![](assets/rayt-cpp.png)
+![](assets/rayt_cpp_one_weekend.png)
+*assets/rayt_cpp_one_weekend.png*
+
+![](assets/rayt_cpp_next_week.png)
+*assets/rayt_cpp_next_week.png*
 
 CMake will generate makefiles for your operating system. If you didn't use CMake before, take a look at the documentation to learn how to build a C++ project. Example usage:
 
@@ -15,7 +19,8 @@ cd rayt-cpp
 cmake . -B build
 cd build
 make install
-bin/rayt-cpp > image.ppm
+bin/rayt_one_weekend > image_one_weekend.ppm
+bin/rayt_next_week > image_next_week.ppm
 ```
 
 For Windows:
@@ -24,12 +29,13 @@ cd rayt-cpp
 cmake . -G "NMake Makefiles" -B build
 cd build
 nmake install
-bin\rayt-cpp.exe > image.ppm
+bin/rayt_one_weekend.exe > image_one_weekend.ppm
+bin/rayt_next_week.exe > image_next_week.ppm
 ```
 
 Performance status:
 ```
-time bin/rayt-cpp > image.ppm
+time bin/rayt_one_weekend.exe > image_one_weekend.ppm
 Scanlines remaining: 0
 Done.
 
