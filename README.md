@@ -6,11 +6,13 @@ Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.git
 
 ## Build C++ Project
 
+**One Weekend:**
+
 ![](assets/rayt_cpp_one_weekend.png)
-*assets/rayt_cpp_one_weekend.png*
+
+**Next Week:**
 
 ![](assets/rayt_cpp_next_week.png)
-*assets/rayt_cpp_next_week.png*
 
 CMake will generate makefiles for your operating system. If you didn't use CMake before, take a look at the documentation to learn how to build a C++ project. Example usage:
 
