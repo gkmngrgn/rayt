@@ -56,6 +56,8 @@ strip target/release/rayt  # for linux and macos
 Performance status (image width is 600px):
 
 ```
+time ./target/release/rayt > image.ppm
+
 Scanlines remaining: 0
 Done.
 
