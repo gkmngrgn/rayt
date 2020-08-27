@@ -18,32 +18,27 @@ CMake will generate makefiles for your operating system. If you didn't use CMake
 
 ```
 cd rayt-cpp
-cmake . -B build
+cmake . -DCMAKE_BUILD_TYPE=Release -B build
 cd build
 make install
-bin/rayt_one_weekend > image_one_weekend.ppm
-bin/rayt_next_week > image_next_week.ppm
+strip bin/*
+./bin/rayt_one_weekend > image_one_weekend.ppm
+./bin/rayt_next_week > image_next_week.ppm
 ```
 
-For Windows:
-```
-cd rayt-cpp
-cmake . -G "NMake Makefiles" -B build
-cd build
-nmake install
-bin/rayt_one_weekend.exe > image_one_weekend.ppm
-bin/rayt_next_week.exe > image_next_week.ppm
-```
+For Windows use Visual Studio with C++ build tools directly.
 
-Performance status:
+Performance status (image width is 600px):
+
 ```
-time bin/rayt_one_weekend.exe > image_one_weekend.ppm
+time ./bin/rayt_one_weekend > image_one_weekend.ppm
+
 Scanlines remaining: 0
 Done.
 
-real    0m58,499s
-user    0m58,486s
-sys     0m0,009s
+real    0m21.853s
+user    0m21.582s
+sys     0m0.011s
 ```
 
 ## Build Rust Project
@@ -53,7 +48,20 @@ sys     0m0,009s
 I'll add a screenshot when the Rust project is ready.
 
 ```
-cargo run > image.ppm
+cargo build --release
+strip target/release/rayt  # for linux and macos
+./target/release/rayt > image.ppm
+```
+
+Performance status (image width is 600px):
+
+```
+Scanlines remaining: 0
+Done.
+
+real    0m51.454s
+user    0m26.004s
+sys     0m1.428s
 ```
 
 ## Build Python Project
