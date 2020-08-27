@@ -87,13 +87,15 @@ python -m pytest -s
 python -m pytest -s -k test_subtraction
 ```
 
-Performance status:
+Performance status (image width is 300px):
+
 ```
 time python -m rayt_python.main > image.ppm
+
 Scanlines remaining: 1
 Done.
 
-real    9m10,505s
-user    29m21,547s
-sys     0m3,749s
+real    5m34.828s
+user    63m33.183s
+sys     0m3.051s
 ```
