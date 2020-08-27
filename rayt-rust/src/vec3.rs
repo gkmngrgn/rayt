@@ -1,6 +1,6 @@
 use crate::{random_double, utils::PI};
 use std::fmt;
-use std::ops::{Add, Div, Mul, Neg, Sub};
+use std::ops::{Add, Div, Mul, MulAssign, Neg, Sub};
 
 #[derive(PartialEq, Clone, Copy, Default)]
 pub struct Vec3 {
@@ -96,6 +96,16 @@ impl Mul<Vec3> for f64 {
 
     fn mul(self, rhs: Vec3) -> Self::Output {
         rhs * self
+    }
+}
+
+impl MulAssign<Vec3> for Vec3 {
+    fn mul_assign(&mut self, rhs: Vec3) {
+        *self = Self {
+            x: self.x * rhs.x,
+            y: self.y * rhs.y,
+            z: self.z * rhs.z,
+        }
     }
 }
 

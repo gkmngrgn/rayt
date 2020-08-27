@@ -13,22 +13,33 @@ use rayt::{
 #[macro_use]
 extern crate rayt;
 
-fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
-    // FIXME: don't use recursive here. take a look at the Python code.
+fn ray_color(mut r: Ray, world: &HittableList, depth: usize) -> Color {
     if depth == 0 {
         return Color::default();
     }
 
-    if let Some(rec) = world.hit(r, 0.001, INFINITY) {
-        if let Some((scattered, attenuation)) = rec.material.scatter(r, rec) {
-            return attenuation * ray_color(&scattered, world, depth - 1);
+    let mut r_color = Color::from([1.0, 1.0, 1.0]);
+
+    for _ in 0..depth {
+        match world.hit(&r, 0.001, INFINITY) {
+            Some(rec) => match rec.material.scatter(&r, rec) {
+                Some((scattered, attenuation)) => {
+                    r = scattered;
+                    r_color *= attenuation;
+                }
+                None => return Color::default(),
+            },
+            None => {
+                let unit_direction = unit_vector(r.direction);
+                let t = 0.5 * (unit_direction.y + 1.0);
+                r_color *=
+                    (1.0 - t) * Color::from([1.0, 1.0, 1.0]) + t * Color::from([0.5, 0.7, 1.0]);
+                break;
+            }
         }
-        return Color::default();
     }
 
-    let unit_direction = unit_vector(r.direction);
-    let t = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - t) * Color::from([1.0, 1.0, 1.0]) + t * Color::from([0.5, 0.7, 1.0])
+    r_color
 }
 
 fn random_scene() -> HittableList {
@@ -113,8 +124,7 @@ fn main() {
                 .map(|_| {
                     let u = (i as f64 + random_double!()) / (IMAGE_WIDTH - 1) as f64;
                     let v = (j as f64 + random_double!()) / (IMAGE_HEIGHT - 1) as f64;
-                    let r = cam.get_ray(u, v);
-                    ray_color(&r, &world, MAX_DEPTH)
+                    ray_color(cam.get_ray(u, v), &world, MAX_DEPTH)
                 })
                 .fold(Color::default(), |sum, c| sum + c);
             write_color(pixel_color, SAMPLES_PER_PIXEL);
