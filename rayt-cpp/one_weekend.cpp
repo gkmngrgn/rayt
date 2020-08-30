@@ -103,7 +103,8 @@ int main() {
   auto dist_to_focus = 10.0;
   auto aperture = 0.1;
 
-  camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+  camera cam(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture,
+             dist_to_focus);
 
   for (int j = image_height - 1; j >= 0; --j) {
     std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
