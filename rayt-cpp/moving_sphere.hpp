@@ -13,6 +13,7 @@
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
 //==============================================================================
 
+#include "aabb.hpp"
 #include "hittable.hpp"
 #include "utils.hpp"
 
@@ -25,6 +26,9 @@ public:
         mat_ptr(m){};
   virtual bool hit(const ray &r, double t_min, double t_max,
                    hit_record &rec) const override;
+
+  virtual bool bounding_box(double t0, double t1,
+                            aabb &output_box) const override;
 
   point3 center(double time) const;
 
@@ -73,6 +77,15 @@ bool moving_sphere::hit(const ray &r, double t_min, double t_max,
   }
 
   return false;
+}
+
+bool moving_sphere::bounding_box(double t0, double t1, aabb &output_box) const {
+  aabb box0(center(t0) - vec3(radius, radius, radius),
+            center(t0) + vec3(radius, radius, radius));
+  aabb box1(center(t1) - vec3(radius, radius, radius),
+            center(t1) + vec3(radius, radius, radius));
+  output_box = surrounding_box(box0, box1);
+  return true;
 }
 
 #endif
