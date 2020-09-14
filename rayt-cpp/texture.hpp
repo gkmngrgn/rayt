@@ -1,5 +1,5 @@
-#ifndef HITTABLE_HPP
-#define HITTABLE_HPP
+#ifndef TEXTURE_HPP
+#define TEXTURE_HPP
 
 //==============================================================================
 // Originally written in 2016 by Peter Shirley <ptrshrl@gmail.com>
@@ -13,32 +13,28 @@
 // <http://creativecommons.org/publicdomain/zero/1.0/>.
 //==============================================================================
 
-#include "aabb.hpp"
-#include "ray.hpp"
+#include "color.hpp"
 
-class material;
-
-struct hit_record {
-  point3 p;
-  vec3 normal;
-  shared_ptr<material> mat_ptr;
-  double t;
-  double u;
-  double v;
-  bool front_face;
-
-  inline void set_face_normal(const ray &r, const vec3 &outward_normal) {
-    front_face = dot(r.direction(), outward_normal) < 0;
-    normal = front_face ? outward_normal : -outward_normal;
-  }
+class texture {
+public:
+  virtual color value(double u, double v, const point3 &p) const = 0;
 };
 
-class hittable {
+class solid_color : public texture {
 public:
-  virtual bool hit(const ray &r, double t_min, double t_max,
-                   hit_record &rec) const = 0;
+  solid_color() {}
 
-  virtual bool bounding_box(double t0, double t1, aabb &output_box) const = 0;
+  solid_color(color c) : color_value(c) {}
+
+  solid_color(double red, double green, double blue)
+      : solid_color(color(red, green, blue)) {}
+
+  virtual color value(double u, double v, const vec3 &p) const override {
+    return color_value;
+  }
+
+private:
+  color color_value;
 };
 
 #endif

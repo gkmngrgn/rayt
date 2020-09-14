@@ -15,6 +15,7 @@
 
 #include "hittable.hpp"
 #include "ray.hpp"
+#include "texture.hpp"
 #include "vec3.hpp"
 
 double schlick(double cosine, double ref_idx) {
@@ -31,18 +32,20 @@ public:
 
 class lambertian : public material {
 public:
-  lambertian(const color &a) : albedo(a) {}
+  lambertian(const color &a) : albedo(make_shared<solid_color>(a)) {}
+
+  lambertian(shared_ptr<texture> a) : albedo(a) {}
 
   virtual bool scatter(const ray &r_in, const hit_record &rec,
                        color &attenuation, ray &scattered) const {
     vec3 scatter_direction = rec.normal + random_unit_vector();
     scattered = ray(rec.p, scatter_direction, r_in.time());
-    attenuation = albedo;
+    attenuation = albedo->value(rec.u, rec.v, rec.p);
     return true;
   }
 
 public:
-  color albedo;
+  shared_ptr<texture> albedo;
 };
 
 class metal : public material {
