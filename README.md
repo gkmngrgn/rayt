@@ -16,7 +16,7 @@ Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.git
 
 CMake will generate makefiles for your operating system. If you didn't use CMake before, take a look at the documentation to learn how to build a C++ project. Example usage:
 
-```
+```shell
 cd rayt-cpp
 cmake . -DCMAKE_BUILD_TYPE=Release -B build
 cd build
