@@ -55,6 +55,10 @@ public:
     auto v = p.y() - floor(p.y());
     auto w = p.z() - floor(p.z());
 
+    u = u * u * (3 - 2 * u);
+    v = v * v * (3 - 2 * v);
+    w = w * w * (3 - 2 * w);
+
     int i = floor(p.x());
     int j = floor(p.y());
     int k = floor(p.z());
