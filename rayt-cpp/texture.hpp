@@ -15,6 +15,7 @@
 
 #include "color.hpp"
 #include "perlin.hpp"
+#include <iostream>
 
 class texture {
 public:
@@ -76,6 +77,25 @@ public:
 public:
   perlin noise;
   double scale;
+};
+
+class image_texture : public texture {
+public:
+  const static int bytes_per_pixel = 3;
+
+  image_texture() : data(nullptr), width(0), height(0), bytes_per_scanline(0) {}
+
+  image_texture(const char *filename) {
+    auto components_per_pixel = bytes_per_pixel;
+
+    data = stbi_load(filename, &width, &height, &components_per_pixel,
+                     components_per_pixel);
+  }
+
+private:
+  unsigned char *data;
+  int width, height;
+  int bytes_per_scanline;
 };
 
 #endif
