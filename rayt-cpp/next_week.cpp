@@ -147,14 +147,26 @@ hittable_list simple_light() {
   return objects;
 }
 
-int main() {
-  // image
-  const auto aspect_ratio = 16.0 / 9.0;
-  const int image_width = 600;
-  const int image_height = static_cast<int>(image_width / aspect_ratio);
-  const int max_depth = 50;
+hittable_list cornell_box() {
+  hittable_list objects;
 
-  std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+  auto red = make_shared<lambertian>(color(0.65, 0.05, 0.05));
+  auto white = make_shared<lambertian>(color(0.73, 0.73, 0.73));
+  auto green = make_shared<lambertian>(color(0.12, 0.45, 0.15));
+  auto light = make_shared<diffuse_light>(color(15.0, 15.0, 15.0));
+
+  objects.add(make_shared<yz_rect>(0.0, 555.0, 0.0, 555.0, 555.0, green));
+  objects.add(make_shared<yz_rect>(0.0, 555.0, 0.0, 555.0, 0, red));
+  objects.add(make_shared<xz_rect>(213.0, 343.0, 227.0, 332.0, 554.0, light));
+  objects.add(make_shared<xz_rect>(0.0, 555.0, 0.0, 555.0, 0.0, white));
+  objects.add(make_shared<xz_rect>(0.0, 555.0, 0.0, 555.0, 555.0, white));
+  objects.add(make_shared<xy_rect>(0.0, 555.0, 0.0, 555.0, 555.0, white));
+
+  return objects;
+}
+
+int main() {
+  const int max_depth = 50;
 
   hittable_list world;
 
@@ -162,6 +174,8 @@ int main() {
   point3 lookat;
   auto vfov = 40.0;
   auto aperture = 0.0;
+  int image_width = 600;
+  auto aspect_ratio = 16.0 / 9.0;
   int samples_per_pixel = 100;
   color background(0.0, 0.0, 0.0);
 
@@ -199,7 +213,6 @@ int main() {
     vfov = 20.0;
     break;
 
-  default:
   case 5:
     world = simple_light();
     samples_per_pixel = 400;
@@ -208,7 +221,23 @@ int main() {
     lookat = point3(0.0, 2.0, 0.0);
     vfov = 20.0;
     break;
+
+  default:
+  case 6:
+    world = cornell_box();
+    aspect_ratio = 1.0;
+    image_width = 600;
+    samples_per_pixel = 200;
+    background = color(0.0, 0.0, 0.0);
+    lookfrom = point3(278.0, 278.0, -800.0);
+    lookat = point3(278.0, 278.0, 0);
+    vfov = 40.0;
+    break;
   }
+
+  // image
+  const int image_height = static_cast<int>(image_width / aspect_ratio);
+  std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
   // camera
   vec3 vup(0.0, 1.0, 0.0);
