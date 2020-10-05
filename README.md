@@ -14,16 +14,15 @@ Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.git
 
 ![](assets/rayt_cpp_next_week.png)
 
-CMake will generate makefiles for your operating system. If you didn't use CMake before, take a look at the documentation to learn how to build a C++ project. Also you will need [VCPKG](https://github.com/microsoft/vcpkg/) for installing dependencies so define `VCPKG_DIR` environment Example usage:
+CMake will generate makefiles for your operating system. If you didn't use CMake before, take a look at the documentation to learn how to build a C++ project. Example usage:
 
 ```shell
 cd rayt-cpp
-cmake . -DCMAKE_BUILD_TYPE=Release -B build
-cd build
-make install
-strip bin/*
-./bin/rayt_one_weekend > image_one_weekend.ppm
-./bin/rayt_next_week > image_next_week.ppm
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+cmake --install build && strip build/bin/*
+./build/bin/rayt_one_weekend > image_one_weekend.ppm
+./build/bin/rayt_next_week > image_next_week.ppm
 ```
 
 For Windows use Visual Studio with C++ build tools directly.
