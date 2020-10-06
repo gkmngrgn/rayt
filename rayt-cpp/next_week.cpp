@@ -11,6 +11,7 @@
 //==============================================================================
 
 #include "aarect.hpp"
+#include "box.hpp"
 #include "camera.hpp"
 #include "color.hpp"
 #include "hittable_list.hpp"
@@ -20,7 +21,6 @@
 #include "utils.hpp"
 
 #include <iostream>
-#include <memory>
 
 color ray_color(const ray &r, const color &background, const hittable &world,
                 int depth) {
@@ -161,6 +161,18 @@ hittable_list cornell_box() {
   objects.add(make_shared<xz_rect>(0.0, 555.0, 0.0, 555.0, 0.0, white));
   objects.add(make_shared<xz_rect>(0.0, 555.0, 0.0, 555.0, 555.0, white));
   objects.add(make_shared<xy_rect>(0.0, 555.0, 0.0, 555.0, 555.0, white));
+
+  shared_ptr<hittable> box1 = make_shared<box>(
+      point3(0.0, 0.0, 0.0), point3(165.0, 330.0, 165.0), white);
+  box1 = make_shared<rotate_y>(box1, 15.0);
+  box1 = make_shared<translate>(box1, vec3(265.0, 0.0, 295.0));
+  objects.add(box1);
+
+  shared_ptr<hittable> box2 = make_shared<box>(
+      point3(0.0, 0.0, 0.0), point3(165.0, 165.0, 165.0), white);
+  box2 = make_shared<rotate_y>(box2, -18.0);
+  box2 = make_shared<translate>(box2, vec3(130.0, 0.0, 65.0));
+  objects.add(box2);
 
   return objects;
 }
