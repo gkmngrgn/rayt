@@ -184,7 +184,7 @@ hittable_list cornell_smoke() {
 
   auto red = make_shared<lambertian>(color(0.65, 0.05, 0.05));
   auto white = make_shared<lambertian>(color(0.73, 0.73, 0.73));
-  auto green = make_shared<lambertian>(color(0.12, 0.45, 0.17));
+  auto green = make_shared<lambertian>(color(0.12, 0.45, 0.15));
   auto light = make_shared<diffuse_light>(color(7.0, 7.0, 7.0));
 
   objects.add(make_shared<yz_rect>(0.0, 555.0, 0.0, 555.0, 555.0, green));
@@ -192,7 +192,7 @@ hittable_list cornell_smoke() {
   objects.add(make_shared<xz_rect>(113.0, 443.0, 127.0, 432.0, 554.0, light));
   objects.add(make_shared<xz_rect>(0.0, 555.0, 0.0, 555.0, 555.0, white));
   objects.add(make_shared<xz_rect>(0.0, 555.0, 0.0, 555.0, 0.0, white));
-  objects.add(make_shared<xz_rect>(0.0, 555.0, 0.0, 555.0, 555.0, white));
+  objects.add(make_shared<xy_rect>(0.0, 555.0, 0.0, 555.0, 555.0, white));
 
   shared_ptr<hittable> box1 = make_shared<box>(
       point3(0.0, 0.0, 0.0), point3(165.0, 330.0, 165.0), white);

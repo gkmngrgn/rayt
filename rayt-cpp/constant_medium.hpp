@@ -53,7 +53,7 @@ bool constant_medium::hit(const ray &r, double t_min, double t_max,
     rec1.t = t_min;
   }
 
-  if (rec2.t < t_max) {
+  if (rec2.t > t_max) {
     rec2.t = t_max;
   }
 
