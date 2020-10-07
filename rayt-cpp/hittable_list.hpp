@@ -15,8 +15,6 @@
 
 #include "aabb.hpp"
 #include "hittable.hpp"
-
-#include <memory>
 #include <vector>
 
 using std::make_shared;
@@ -31,7 +29,7 @@ public:
   void add(shared_ptr<hittable> object) { objects.push_back(object); }
 
   virtual bool hit(const ray &r, double t_min, double t_max,
-                   hit_record &rec) const;
+                   hit_record &rec) const override;
 
   virtual bool bounding_box(double t0, double t1,
                             aabb &output_box) const override;
