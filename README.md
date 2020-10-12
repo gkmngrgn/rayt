@@ -19,8 +19,7 @@ CMake will generate makefiles for your operating system. If you didn't use CMake
 ```shell
 cd rayt-cpp
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-cmake --install build && strip build/bin/*
+cmake --build build && cmake --install build && strip build/bin/*
 ./build/bin/rayt_one_weekend > rayt_cpp_one_weekend.ppm
 ./build/bin/rayt_next_week > rayt_cpp_next_week.ppm
 ```
