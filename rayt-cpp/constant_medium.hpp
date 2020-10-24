@@ -1,6 +1,18 @@
 #ifndef CONSTANT_MEDIUM_HPP
 #define CONSTANT_MEDIUM_HPP
 
+//==============================================================================
+// Originally written in 2016 by Peter Shirley <ptrshrl@gmail.com>
+//
+// To the extent possible under law, the author(s) have dedicated all copyright
+// and related and neighboring rights to this software to the public domain
+// worldwide. This software is distributed without any warranty.
+//
+// You should have received a copy (see file COPYING.txt) of the CC0 Public
+// Domain Dedication along with this software. If not, see
+// <http://creativecommons.org/publicdomain/zero/1.0/>.
+//==============================================================================
+
 #include "hittable.hpp"
 #include "material.hpp"
 #include "texture.hpp"
@@ -46,7 +58,7 @@ bool constant_medium::hit(const ray &r, double t_min, double t_max,
   }
 
   if (debugging) {
-    std::cerr << "\nt0=" << rec1.t << ", t1=" << rec2.t << "\n";
+    std::cerr << "\nt0=" << rec1.t << ", t1=" << rec2.t << '\n';
   }
 
   if (rec1.t < t_min) {
@@ -77,9 +89,9 @@ bool constant_medium::hit(const ray &r, double t_min, double t_max,
   rec.p = r.at(rec.t);
 
   if (debugging) {
-    std::cerr << "hit_distance = " << hit_distance << "\n"
-              << "rec.t = " << rec.t << "\n"
-              << "rec.p = " << rec.p << "\n";
+    std::cerr << "hit_distance = " << hit_distance << '\n'
+              << "rec.t = " << rec.t << '\n'
+              << "rec.p = " << rec.p << '\n';
   }
 
   rec.normal = vec3(1.0, 0.0, 0.0); // arbitrary

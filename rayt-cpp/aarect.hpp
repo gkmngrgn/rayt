@@ -1,7 +1,20 @@
 #ifndef AARECT_HPP
 #define AARECT_HPP
 
+//==============================================================================
+// Originally written in 2016 by Peter Shirley <ptrshrl@gmail.com>
+//
+// To the extent possible under law, the author(s) have dedicated all copyright
+// and related and neighboring rights to this software to the public domain
+// worldwide. This software is distributed without any warranty.
+//
+// You should have received a copy (see file COPYING.txt) of the CC0 Public
+// Domain Dedication along with this software. If not, see
+// <http://creativecommons.org/publicdomain/zero/1.0/>.
+//==============================================================================
+
 #include "hittable.hpp"
+#include "utils.hpp"
 
 class xy_rect : public hittable {
 public:
@@ -9,7 +22,7 @@ public:
 
   xy_rect(double _x0, double _x1, double _y0, double _y1, double _k,
           shared_ptr<material> mat)
-      : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat) {}
+      : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat){};
 
   virtual bool hit(const ray &r, double t0, double t1,
                    hit_record &rec) const override;
@@ -41,7 +54,7 @@ bool xy_rect::hit(const ray &r, double t0, double t1, hit_record &rec) const {
   rec.v = (y - y0) / (y1 - y0);
   rec.t = t;
 
-  auto outward_normal = vec3(0.0, 0.0, 0.1);
+  auto outward_normal = vec3(0.0, 0.0, 1.0);
   rec.set_face_normal(r, outward_normal);
   rec.mat_ptr = mp;
   rec.p = r.at(t);
@@ -54,7 +67,7 @@ public:
 
   xz_rect(double _x0, double _x1, double _z0, double _z1, double _k,
           shared_ptr<material> mat)
-      : x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat) {}
+      : x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat){};
 
   virtual bool hit(const ray &r, double t0, double t1,
                    hit_record &rec) const override;
@@ -101,7 +114,7 @@ public:
 
   yz_rect(double _y0, double _y1, double _z0, double _z1, double _k,
           shared_ptr<material> mat)
-      : y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat) {}
+      : y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat){};
 
   virtual bool hit(const ray &r, double t0, double t1,
                    hit_record &rec) const override;
@@ -117,7 +130,7 @@ public:
   double y0, y1, z0, z1, k;
 };
 
-bool yz_rect ::hit(const ray &r, double t0, double t1, hit_record &rec) const {
+bool yz_rect::hit(const ray &r, double t0, double t1, hit_record &rec) const {
   auto t = (k - r.origin().x()) / r.direction().x();
   if (t < t0 || t > t1) {
     return false;
@@ -139,6 +152,6 @@ bool yz_rect ::hit(const ray &r, double t0, double t1, hit_record &rec) const {
   rec.p = r.at(t);
 
   return true;
-};
+}
 
 #endif

@@ -105,7 +105,7 @@ hittable_list two_spheres() {
 
   objects.add(make_shared<sphere>(point3(0.0, -10.0, 0.0), 10.0,
                                   make_shared<lambertian>(checker)));
-  objects.add(make_shared<sphere>(point3(0.0, 10.0, 0.0), 10,
+  objects.add(make_shared<sphere>(point3(0.0, 10.0, 0.0), 10.0,
                                   make_shared<lambertian>(checker)));
 
   return objects;
