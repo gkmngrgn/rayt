@@ -20,8 +20,8 @@ CMake will generate makefiles for your operating system. If you didn't use CMake
 cd rayt-cpp
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build && cmake --install build && strip build/rayt_*
-./build/rayt_one_weekend > rayt_cpp_one_weekend.ppm
-./build/rayt_next_week > rayt_cpp_next_week.ppm
+./build/one_weekend > rayt_cpp_one_weekend.ppm
+./build/next_week > rayt_cpp_next_week.ppm
 ```
 
 For Windows use Visual Studio with C++ build tools directly.
@@ -29,7 +29,7 @@ For Windows use Visual Studio with C++ build tools directly.
 Performance status (image width is 600px):
 
 ```
-time ./bin/rayt_one_weekend > image_one_weekend.ppm
+time ./bin/one_weekend > rayt_cpp_one_weekend.ppm
 
 Scanlines remaining: 0
 Done.
@@ -47,8 +47,9 @@ I'll add a screenshot when the Rust project is ready.
 
 ```
 cargo build --release
-strip target/release/rayt  # for linux and macos
-./target/release/rayt > image.ppm
+strip target/release/rayt_*  # for linux and macos
+./target/release/one_weekend > rayt_rust_one_weekend.ppm
+./target/release/next_week > rayt_rust_next_week.ppm
 ```
 
 Performance status (image width is 600px):
