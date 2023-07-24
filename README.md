@@ -4,41 +4,6 @@ Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.git
 
 ![](assets/image.png)
 
-## Build C++ Project
-
-**One Weekend:**
-
-![](assets/rayt_cpp_one_weekend.png)
-
-**Next Week:**
-
-![](assets/rayt_cpp_next_week.png)
-
-CMake will generate makefiles for your operating system. If you didn't use CMake before, take a look at the documentation to learn how to build a C++ project. Example usage:
-
-```shell
-cd rayt-cpp
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build && cmake --install build && strip build/rayt_*
-./build/one_weekend > rayt_cpp_one_weekend.ppm
-./build/next_week > rayt_cpp_next_week.ppm
-```
-
-For Windows use Visual Studio with C++ build tools directly.
-
-Performance status (image width is 600px):
-
-```
-time ./bin/one_weekend > rayt_cpp_one_weekend.ppm
-
-Scanlines remaining: 0
-Done.
-
-real    0m21.853s
-user    0m21.582s
-sys     0m0.011s
-```
-
 ## Build Rust Project
 
 ![](assets/rayt-rust.png)
