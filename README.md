@@ -10,16 +10,21 @@ Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.git
 
 I'll add a screenshot when the Rust project is ready.
 
-```
+```shell
 cargo build --release
-strip target/release/rayt_*  # for linux and macos
+
+# if you have strip command
+strip target/release/one_weekend
+strip target/release/next_week
+
+# run the project
 ./target/release/one_weekend > rayt_rust_one_weekend.ppm
 ./target/release/next_week > rayt_rust_next_week.ppm
 ```
 
 Performance status (image width is 600px):
 
-```
+```shell
 time ./target/release/rayt > image.ppm
 
 Scanlines remaining: 0
@@ -36,7 +41,7 @@ sys     0m1.428s
 
 I tested the project using the latest stable version of Python (3.8).
 
-```
+```shell
 cd rayt-python
 pip install -r requirements.txt
 python setup.py build_ext --inplace
@@ -44,7 +49,8 @@ python -m rayt_python.main > image.ppm
 ```
 
 For development:
-```
+
+```shell
 pip install -r requirements-dev.txt
 python -m scalene rayt_python/main.py --html --outfile scalene.html
 python -m pytest -s
@@ -53,8 +59,7 @@ python -m pytest -s -k test_subtraction
 
 Performance status (image width is 300px):
 
-```
-time python -m rayt_python.main > image.ppm
+```shell time python -m rayt_python.main > image.ppm
 
 Scanlines remaining: 1
 Done.
