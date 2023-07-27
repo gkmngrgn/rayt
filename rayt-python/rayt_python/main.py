@@ -77,7 +77,7 @@ def random_scene() -> HittableList:
 
 
 def consume_color(
-        width, height, cam, world, max_depth, samples_per_pixel, queue, coord
+    width, height, cam, world, max_depth, samples_per_pixel, queue, coord
 ):
     pixel_color = Color(0.0, 0.0, 0.0)
     j, i = coord
