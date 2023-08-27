@@ -1,0 +1,11 @@
+[package]
+name = "rayt-rust-py"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "rayt_rust_py"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.19.0"

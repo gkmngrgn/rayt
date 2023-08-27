@@ -9,7 +9,12 @@ packages = [{include = "rayt_python"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 
+[tool.poetry.group.dev.dependencies]
+maturin = "^1.2.3"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["maturin>=1.2,<2.0"]
+build-backend = "maturin"
