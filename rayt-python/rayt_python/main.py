@@ -1,20 +1,17 @@
-import functools
 import itertools
 import math
-import multiprocessing
 import sys
-import time
 
-from rayt_python.camera import Camera
-from rayt_python.color import write_color
-from rayt_python.hittable import Hittable
-from rayt_python.hittable_list import HittableList
-from rayt_python.material import Dielectric, Lambertian, Metal
-from rayt_python.ray import Ray
-from rayt_python.sphere import Sphere
-from rayt_python.utils import random_double
-from rayt_python.vec3 import unit_vector
-from rayt_python.vec3_types import Color, Point3, Vec3
+from rayt_rust_py import (
+    Ray,
+    Vec3,
+    random_double,
+    unit_vector,
+    write_color,
+)
+
+Color = Vec3
+Point3 = Vec3
 
 
 def ray_color(ray: Ray, world: Hittable, depth: int) -> Color:
@@ -76,68 +73,34 @@ def random_scene() -> HittableList:
     return world
 
 
-def consume_color(
-    width, height, cam, world, max_depth, samples_per_pixel, queue, coord
-):
-    pixel_color = Color(0.0, 0.0, 0.0)
-    j, i = coord
-    queue.put(height - j)
-
-    for _ in range(1, samples_per_pixel + 1):
-        u = (i + random_double()) / (width - 1)
-        v = (j + random_double()) / (height - 1)
-        ray = cam.get_ray(u, v)
-        pixel_color += ray_color(ray, world, max_depth)
-
-    return pixel_color
-
-
-def main() -> None:
+def one_weekend(
+    image_width: int = 300,
+    samples_per_pixel: int = 20,
+    max_depth: int = 50,
+) -> None:
     aspect_ratio = 16.0 / 9.0
-    image_width = 300
     image_height = int(image_width / aspect_ratio)
-    samples_per_pixel = 20
-    max_depth = 50
-
     world = random_scene()
-
     lookfrom = Point3(13, 2, 3)
     lookat = Point3(0, 0, 0)
     vup = Vec3(0, 1, 0)
     dist_to_focus = 10.0
     aperture = 0.1
-
-    cam = Camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
-
-    pool = multiprocessing.Pool()
-    manager = multiprocessing.Manager()
-    queue = manager.Queue()
-    coords = itertools.product(range(image_height - 1, -1, -1), range(image_width))
-    func = functools.partial(
-        consume_color,
-        image_width,
-        image_height,
-        cam,
-        world,
-        max_depth,
-        samples_per_pixel,
-        queue,
-    )
-    result = pool.map_async(func, coords)
-    while not result.ready():
-        remaining = image_height - queue.qsize() // image_width
-        print(f"\rScanlines remaining: {remaining}", end=" ", file=sys.stderr)
-        time.sleep(0.1)
-
-    colors = result.get()
+    camera = Camera(lookfrom, lookat, vup, 20.0, aspect_ratio, aperture, dist_to_focus)
 
     print(f"P3\n{image_width} {image_height}\n255")
 
-    for pixel_color in colors:
+    for j, i in itertools.product(range(image_height - 1, -1, -1), range(image_width)):
+        print(f"\rScanlines remaining: {j}", end=" ", file=sys.stderr)
+
+        pixel_color = Color(0.0, 0.0, 0.0)
+
+        for _ in range(1, samples_per_pixel + 1):
+            u = (i + random_double()) / (image_width - 1)
+            v = (j + random_double()) / (image_height - 1)
+            ray = camera.get_ray(u, v)
+            pixel_color += ray_color(ray, world, max_depth)
+
         write_color(pixel_color, samples_per_pixel)
 
     print("\nDone.", file=sys.stderr)
-
-
-if __name__ == "__main__":
-    main()

@@ -12,6 +12,9 @@ python = "^3.11"
 [tool.poetry.group.dev.dependencies]
 maturin = "^1.2.3"
 
+[tool.poetry.scripts]
+one-weekend = "rayt_python.main:one_weekend"
+
 [tool.maturin]
 features = ["pyo3/extension-module"]
 

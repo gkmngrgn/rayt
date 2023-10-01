@@ -1,14 +1,18 @@
 use pyo3::prelude::*;
 
-/// Formats the sum of two numbers as string.
-#[pyfunction]
-fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-    Ok((a + b).to_string())
-}
+mod camera;
+mod color;
+mod ray;
+mod utils;
+mod vec3;
 
 /// `rayt-rust` python bindings
 #[pymodule]
 fn rayt_rust_py(_py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
+    m.add_class::<ray::Ray>()?;
+    m.add_class::<vec3::Vec3>()?;
+    m.add_function(wrap_pyfunction!(color::write_color, m)?)?;
+    m.add_function(wrap_pyfunction!(utils::random_double, m)?)?;
+    m.add_function(wrap_pyfunction!(vec3::unit_vector, m)?)?;
     Ok(())
 }

@@ -8,4 +8,5 @@ name = "rayt_rust_py"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.19.0"
+pyo3 = "0.19.2"
+rand = "0.8.5"
