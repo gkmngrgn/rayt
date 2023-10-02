@@ -205,3 +205,7 @@ pub fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
     let r_out_perp = -f64::sqrt(1.0 - r_out_parallel.length_squared()) * n;
     r_out_parallel + r_out_perp
 }
+
+// Type aliases for Vec3
+pub type Point3 = Vec3; // 3D point
+pub type Color = Vec3; // RGB color

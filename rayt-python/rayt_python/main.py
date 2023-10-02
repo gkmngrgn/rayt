@@ -3,6 +3,7 @@ import math
 import sys
 
 from rayt_rust_py import (
+    Lambertian,
     Ray,
     Vec3,
     random_double,
