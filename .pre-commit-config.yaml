@@ -43,11 +43,11 @@ repos:
     rev: "v1.8.0"
     hooks:
       - id: mypy
-        args:
-          ["--strict", "--ignore-missing-imports", "--no-warn-unused-ignores"]
+        args: ["--strict", "--ignore-missing-imports", "--no-warn-unused-ignores"]
         additional_dependencies:
           - types-setuptools
           - types-toml
+        exclude: tests
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.1.9"
