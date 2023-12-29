@@ -33,11 +33,13 @@ repos:
     hooks:
       - id: isort
         args: ["--profile", "black"]
+        exclude: rayt-python.old
 
   - repo: https://github.com/psf/black
     rev: "23.12.1"
     hooks:
       - id: black
+        exclude: rayt-python.old
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: "v1.8.0"
@@ -47,7 +49,7 @@ repos:
         additional_dependencies:
           - types-setuptools
           - types-toml
-        exclude: tests
+        exclude: rayt-python.old
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.1.9"

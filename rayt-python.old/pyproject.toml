@@ -1,18 +1,14 @@
 [tool.poetry]
-name = "rayt"
+name = "rayt-python"
 version = "0.1.0"
-description = ""
+description = "Ray tracing with Python"
 authors = ["Gökmen Görgen <gkmngrgn@gmail.com>"]
-readme = "README.md"
+license = "MIT"
+packages = [{include = "rayt_python"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 
-[tool.poetry.group.dev.dependencies]
-maturin = "^1.4.0"
-
-[tool.poetry.scripts]
-one_weekend = "rayt.cli:one_weekend"
 
 [build-system]
 requires = ["poetry-core"]
