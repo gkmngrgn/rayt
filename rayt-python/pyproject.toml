@@ -1,15 +1,22 @@
 [tool.poetry]
-name = "rayt-python"
+name = "rayt"
 version = "0.1.0"
-description = "Ray tracing with Python"
+description = ""
 authors = ["Gökmen Görgen <gkmngrgn@gmail.com>"]
-license = "MIT"
-packages = [{include = "rayt_python"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+click = "^8.1.7"
 
+[tool.poetry.group.dev.dependencies]
+maturin = "^1.4.0"
+
+[tool.poetry.scripts]
+one-weekend = "rayt.cli:one_weekend"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"

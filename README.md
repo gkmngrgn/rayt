@@ -6,8 +6,6 @@ Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.git
 
 ## Build Rust Project
 
-![](assets/rayt-rust.png)
-
 I'll add a screenshot when the Rust project is ready.
 
 ```shell
@@ -25,46 +23,30 @@ strip target/release/next_week
 Performance status (image width is 600px):
 
 ```shell
-time ./target/release/rayt > image.ppm
+time ./target/release/one_weekend > image.ppm
 
 Scanlines remaining: 0
 Done.
-
-real    0m51.454s
-user    0m26.004s
-sys     0m1.428s
+./target/release/one_weekend > image.ppm  13.05s user 0.31s system 98% cpu 13.624 total
 ```
 
 ## Build Python Project
 
-![](assets/rayt-python.png)
-
-I tested the project using the latest stable version of Python (3.8).
+I tested the project using the latest stable version of Python (3.11).
 
 ```shell
 cd rayt-python
-pip install -r requirements.txt
-python setup.py build_ext --inplace
-python -m rayt_python.main > image.ppm
-```
-
-For development:
-
-```shell
-pip install -r requirements-dev.txt
-python -m scalene rayt_python/main.py --html --outfile scalene.html
-python -m pytest -s
-python -m pytest -s -k test_subtraction
+poetry install
+poetry run maturin develop
+poetry run one-weekend --image-width=1200 > image.ppm
 ```
 
 Performance status (image width is 300px):
 
-```shell time python -m rayt_python.main > image.ppm
+```shell
+time poetry run one-weekend --image-width=300 > image.ppm
 
 Scanlines remaining: 1
 Done.
-
-real    5m34.828s
-user    63m33.183s
-sys     0m3.051s
+poetry run one-weekend --image-width=300 > image.ppm  55.39s user 0.12s system 98% cpu 56.236 total
 ```
