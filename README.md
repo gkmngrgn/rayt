@@ -23,7 +23,7 @@ strip target/release/next_week
 Performance status (image width is 600px):
 
 ```shell
-./target/release/one_weekend > image.ppm
+time ./target/release/one_weekend > image.ppm
 
 Scanlines remaining: 0
 Done.
