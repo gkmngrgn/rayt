@@ -2,8 +2,10 @@ use pyo3::prelude::*;
 
 use crate::{
     hittable::{HitRecord, Hittable},
+    material::Material,
     ray::Ray,
     sphere::Sphere,
+    vec3::{Color, Point3},
 };
 
 #[derive(Default)]
@@ -21,6 +23,24 @@ impl HittableList {
 
     pub fn add(&mut self, object: Sphere) {
         self.objects.push(object);
+    }
+
+    fn add_lambertian(&mut self, center: Point3, radius: f64, albedo: Color) {
+        let material = Material::new_lambertian(albedo);
+        let sphere = Sphere::new(center, radius, material);
+        self.add(sphere);
+    }
+
+    fn add_metal(&mut self, center: Point3, radius: f64, albedo: Color, fuzz: f64) {
+        let material = Material::new_metal(albedo, fuzz);
+        let sphere = Sphere::new(center, radius, material);
+        self.add(sphere);
+    }
+
+    fn add_dielectric(&mut self, center: Point3, radius: f64, ref_idx: f64) {
+        let material = Material::new_dielectric(ref_idx);
+        let sphere = Sphere::new(center, radius, material);
+        self.add(sphere);
     }
 }
 

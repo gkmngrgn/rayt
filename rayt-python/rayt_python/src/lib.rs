@@ -15,11 +15,13 @@ mod vec3;
 fn rayt_python(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<camera::Camera>()?;
     m.add_class::<hittable_list::HittableList>()?;
+    m.add_class::<material::Dielectric>()?;
+    m.add_class::<material::Lambertian>()?;
+    m.add_class::<material::Metal>()?;
     m.add_class::<ray::Ray>()?;
-    m.add_class::<vec3::Color>()?;
-    m.add_class::<vec3::Point3>()?;
     m.add_class::<vec3::Vec3>()?;
-    m.add_function(wrap_pyfunction!(color::write_color, m)?)?;
+    m.add_function(wrap_pyfunction!(color::get_color, m)?)?;
+    m.add_function(wrap_pyfunction!(color::ray_color, m)?)?;
     m.add_function(wrap_pyfunction!(utils::random_double, m)?)?;
     m.add_function(wrap_pyfunction!(vec3::unit_vector, m)?)?;
     Ok(())

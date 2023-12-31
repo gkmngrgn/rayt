@@ -1,3 +1,5 @@
+use pyo3::prelude::*;
+
 use crate::{
     hittable::HitRecord,
     random_double,
@@ -18,15 +20,15 @@ pub enum Material {
 
 impl Material {
     pub fn new_lambertian(albedo: Color) -> Self {
-        Material::Lambertian(Lambertian::new(albedo))
+        Material::Lambertian(Lambertian { albedo })
     }
 
     pub fn new_metal(albedo: Color, fuzz: f64) -> Self {
-        Material::Metal(Metal::new(albedo, fuzz))
+        Material::Metal(Metal { albedo, fuzz })
     }
 
     pub fn new_dielectric(ref_idx: f64) -> Self {
-        Material::Dielectric(Dielectric::new(ref_idx))
+        Material::Dielectric(Dielectric { ref_idx })
     }
 }
 
@@ -41,12 +43,15 @@ impl Scatter for Material {
 }
 
 #[derive(Copy, Clone)]
+#[pyclass]
 pub struct Lambertian {
     albedo: Color,
 }
 
+#[pymethods]
 impl Lambertian {
-    fn new(albedo: Color) -> Self {
+    #[new]
+    fn py_new(albedo: Color) -> Self {
         Self { albedo }
     }
 }
@@ -64,13 +69,16 @@ impl Scatter for Lambertian {
 }
 
 #[derive(Copy, Clone)]
+#[pyclass]
 pub struct Metal {
     albedo: Color,
     fuzz: f64,
 }
 
+#[pymethods]
 impl Metal {
-    fn new(albedo: Color, fuzz: f64) -> Self {
+    #[new]
+    fn py_new(albedo: Color, fuzz: f64) -> Self {
         Self {
             albedo,
             fuzz: if fuzz < 1.0 { fuzz } else { 1.0 },
@@ -95,12 +103,15 @@ impl Scatter for Metal {
 }
 
 #[derive(Copy, Clone)]
+#[pyclass]
 pub struct Dielectric {
     ref_idx: f64,
 }
 
+#[pymethods]
 impl Dielectric {
-    fn new(ref_idx: f64) -> Self {
+    #[new]
+    fn py_new(ref_idx: f64) -> Self {
         Self { ref_idx }
     }
 }

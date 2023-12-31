@@ -12,16 +12,13 @@ pub struct Vec3 {
     pub z: f64,
 }
 
-#[pyclass(extends=Vec3)]
-#[pyo3(name = "Point3")]
-struct PyPoint3 {}
-
-#[pyclass(extends=Vec3)]
-#[pyo3(name = "Color")]
-struct PyColor {}
-
 #[pymethods]
 impl Vec3 {
+    #[new]
+    pub fn py_new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
+    }
+
     #[staticmethod]
     pub fn random(min_max: Option<[f64; 2]>) -> Self {
         Self {
@@ -31,12 +28,38 @@ impl Vec3 {
         }
     }
 
+    #[getter]
     pub fn length(&self) -> f64 {
         f64::sqrt(self.length_squared())
     }
 
+    #[getter]
     pub fn length_squared(&self) -> f64 {
         self.x.powi(2) + self.y.powi(2) + self.z.powi(2)
+    }
+
+    fn __add__(&self, other: &Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+
+    fn __sub__(&self, other: &Self) -> Self {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+
+    fn __mul__(&self, other: &Self) -> Self {
+        Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+            z: self.z * other.z,
+        }
     }
 }
 

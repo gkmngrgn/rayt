@@ -21,9 +21,9 @@ pub struct Camera {
 impl Camera {
     #[new]
     pub fn py_new(
-        lookfrom: [f64; 3],
-        lookat: [f64; 3],
-        vup: [f64; 3],
+        lookfrom: Point3,
+        lookat: Point3,
+        vup: Vec3,
         vfov: f64,
         aspect_ratio: f64,
         aperture: f64,
@@ -34,15 +34,11 @@ impl Camera {
         let viewport_height = 2.0 * h;
         let viewport_width = aspect_ratio * viewport_height;
 
-        let lookfrom_point3 = Point3::from(lookfrom);
-        let lookat_point3 = Point3::from(lookat);
-        let vup_point3 = Vec3::from(vup);
-
-        let w = unit_vector(lookfrom_point3 - lookat_point3);
-        let u = unit_vector(cross(vup_point3, w));
+        let w = unit_vector(lookfrom - lookat);
+        let u = unit_vector(cross(vup, w));
         let v = cross(w, u);
 
-        let origin = lookfrom_point3;
+        let origin = lookfrom;
         let horizontal = focus_dist * viewport_width * u;
         let vertical = focus_dist * viewport_height * v;
         let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - focus_dist * w;

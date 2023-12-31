@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 
 use crate::vec3::{Point3, Vec3};
 
+#[derive(Clone)]
 #[pyclass]
 pub struct Ray {
     pub origin: Point3,
