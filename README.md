@@ -43,9 +43,10 @@ I tested the project using the latest stable version of Python (3.8).
 
 ```shell
 cd rayt-python
-pip install -r requirements.txt
-python setup.py build_ext --inplace
-python -m rayt_python.main > image.ppm
+poetry install
+cd rayt_python
+poetry -C .. run maturin develop
+poetry -C .. run one-weekend --image-width=1200 > image.ppm
 ```
 
 For development:
