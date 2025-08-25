@@ -12,7 +12,7 @@ mod vec3;
 
 /// A Python module implemented in Rust.
 #[pymodule]
-fn rayt_python(_py: Python, m: &PyModule) -> PyResult<()> {
+fn rayt_python(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<camera::Camera>()?;
     m.add_class::<hittable_list::HittableList>()?;
     m.add_class::<material::Dielectric>()?;

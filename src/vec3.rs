@@ -1,15 +1,26 @@
+use pyo3::prelude::*;
+
 use crate::{random_double, utils::PI};
 use std::fmt;
 use std::ops::{Add, Div, Mul, MulAssign, Neg, Sub};
 
 #[derive(PartialEq, Clone, Copy, Default)]
+#[pyclass]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,
     pub z: f64,
 }
 
+#[pymethods]
 impl Vec3 {
+    #[new]
+    pub fn py_new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
+    }
+
+    #[staticmethod]
+    #[pyo3(signature = (min_max=None))]
     pub fn random(min_max: Option<[f64; 2]>) -> Self {
         Self {
             x: random_double!(min_max),
@@ -18,12 +29,38 @@ impl Vec3 {
         }
     }
 
-    pub fn length(self) -> f64 {
+    #[getter]
+    pub fn length(&self) -> f64 {
         f64::sqrt(self.length_squared())
     }
 
-    pub fn length_squared(self) -> f64 {
+    #[getter]
+    pub fn length_squared(&self) -> f64 {
         self.x.powi(2) + self.y.powi(2) + self.z.powi(2)
+    }
+
+    fn __add__(&self, other: &Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+
+    fn __sub__(&self, other: &Self) -> Self {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+
+    fn __mul__(&self, other: &Self) -> Self {
+        Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+            z: self.z * other.z,
+        }
     }
 }
 
@@ -158,6 +195,7 @@ pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
     ])
 }
 
+#[pyfunction]
 pub fn unit_vector(v: Vec3) -> Vec3 {
     v / v.length()
 }
