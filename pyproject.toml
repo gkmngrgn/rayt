@@ -13,5 +13,13 @@ dependencies = [
     "numpy>=2.2.6",
 ]
 
+[project.optional-dependencies]
+cuda = [
+    "cupy>=13.0.0",
+]
+
 [project.scripts]
 one-weekend = "rayt.cli:one_weekend"
+
+[tool.uv]
+package = true
