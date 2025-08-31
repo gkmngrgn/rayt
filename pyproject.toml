@@ -1,7 +1,7 @@
 [project]
 name = "rayt"
 version = "0.1.0"
-description = "Ray Tracing with Python & Rust"
+description = "Ray Tracing with Python"
 authors = [
   { name = "Gökmen Görgen", email = "gkmngrgn@gmail.com" },
 ]
@@ -9,16 +9,9 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "click>=8.2.1",
+    "numba>=0.57.0",
+    "numpy>=2.2.6",
 ]
 
 [project.scripts]
 one-weekend = "rayt.cli:one_weekend"
-
-[tool.maturin]
-module-name = "rayt_python"
-python-packages = ["rayt"]
-python-source = "src"
-
-[build-system]
-requires = ["maturin>=1.0,<2.0"]
-build-backend = "maturin"

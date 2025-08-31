@@ -1,48 +1,29 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "v4.5.0"
+    rev: "v6.0.0"
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-added-large-files
       - id: check-docstring-first
-      - id: check-json
       - id: check-toml
       - id: check-yaml
-      - id: pretty-format-json
-        args:
-          - --autofix
-          - --no-sort-keys
 
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: "v1.5.4"
+    rev: "v1.5.5"
     hooks:
       - id: forbid-crlf
       - id: remove-crlf
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: "0.7.17"
+    rev: "0.7.22"
     hooks:
       - id: mdformat
         additional_dependencies:
           - mdformat-gfm
-          - mdformat-black
-
-  - repo: https://github.com/pycqa/isort
-    rev: "5.13.2"
-    hooks:
-      - id: isort
-        args: ["--profile", "black"]
-        exclude: rayt-python.old
-
-  - repo: https://github.com/psf/black
-    rev: "23.12.1"
-    hooks:
-      - id: black
-        exclude: rayt-python.old
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.8.0"
+    rev: "v1.17.1"
     hooks:
       - id: mypy
         args:
@@ -53,10 +34,9 @@ repos:
           - types-setuptools
           - types-toml
           - types-click
-        exclude: rayt-python.old
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.1.9"
+    rev: "v0.12.11"
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]

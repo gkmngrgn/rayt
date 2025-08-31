@@ -9,7 +9,6 @@ Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.git
 I tested the project using the latest stable version of Python (3.13).
 
 ```shell
-uvx maturin develop
 uv run one-weekend --image-width=1200 > image.ppm
 ```
 

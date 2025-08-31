@@ -1,11 +1,11 @@
 import itertools
-import sys
 
 import click
-from rayt_python import Camera, HittableList, Vec3, get_color, random_double, ray_color
 
-Color = Vec3
-Point3 = Vec3
+from rayt.camera import Camera
+from rayt.hittable_list import HittableList
+from rayt.numba_renderer import render_with_numba
+from rayt.vec3 import Color, Point3, Vec3, random_double
 
 
 def random_scene() -> HittableList:
@@ -88,22 +88,6 @@ def one_weekend(
         focus_dist=10.0,
     )
 
-    print("P3")
-    print(f"{image_width} {image_height}")
-    print("255")
-
-    for j in range(image_height, 0, -1):
-        print(f"\rScanlines remaining: {j}", end=" ", file=sys.stderr)
-
-        for i in range(image_width):
-            pixel_color = Color(0.0, 0.0, 0.0)
-
-            for _ in range(1, samples_per_pixel + 1):
-                u = (i + random_double()) / (image_width - 1)
-                v = (j + random_double()) / (image_height - 1)
-                ray = camera.get_ray(u, v)
-                pixel_color += ray_color(ray, world, max_depth)
-
-            print(get_color(pixel_color, samples_per_pixel))
-
-    print("\nDone.", file=sys.stderr)
+    render_with_numba(
+        world, camera, image_width, image_height, samples_per_pixel, max_depth
+    )
