@@ -9,6 +9,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "click>=8.2.1",
+    "matplotlib>=3.10.6",
     "numba>=0.57.0",
     "numpy>=2.2.6",
 ]
@@ -16,10 +17,12 @@ dependencies = [
 [project.optional-dependencies]
 cuda = [
     "cupy>=13.0.0",
+    "numba-cuda[cu13]>=0.19.1",
 ]
 
 [project.scripts]
 one-weekend = "rayt.cli:one_weekend"
+test-gpu = "rayt.cli:test_gpu_availability"
 
 [tool.uv]
 package = true

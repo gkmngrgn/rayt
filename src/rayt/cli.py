@@ -1,5 +1,4 @@
 import itertools
-import sys
 
 import click
 
@@ -7,7 +6,6 @@ from rayt.camera import Camera
 from rayt.hittable_list import HittableList
 from rayt.numba_renderer import render_with_numba
 from rayt.vec3 import Color, Point3, Vec3, random_double
-from rayt.gpu_utils import get_render_engine, print_gpu_info, RenderEngine
 
 
 def random_scene() -> HittableList:
@@ -72,38 +70,19 @@ def random_scene() -> HittableList:
 @click.option("--image-width", default=300, help="Image width in pixels")
 @click.option("--samples-per-pixel", default=20, help="Number of samples per pixel")
 @click.option("--max-depth", default=50, help="Maximum ray bounce depth")
-@click.option("--engine", type=click.Choice(["auto", "cpu", "gpu"]), default="auto",
-              help="Rendering engine: auto (detect best), cpu (force CPU), gpu (force GPU)")
-@click.option("--prefer-gpu", is_flag=True, help="Prefer GPU when available (used with --engine=auto)")
-@click.option("--gpu-info", is_flag=True, help="Show GPU information and exit")
+@click.option(
+    "--engine",
+    type=click.Choice(["cpu", "gpu"]),
+    default="cpu",
+    help="Rendering engine: cpu (force CPU), gpu (force GPU)",
+)
 def one_weekend(
     aspect_ratio: float,
     image_width: int,
     samples_per_pixel: int,
     max_depth: int,
     engine: str,
-    prefer_gpu: bool,
-    gpu_info: bool,
 ) -> None:
-    # Show GPU info and exit if requested
-    if gpu_info:
-        print_gpu_info()
-        return
-
-    # Determine rendering engine
-    force_engine: RenderEngine | None = None
-    if engine == "cpu":
-        force_engine = "cpu"
-    elif engine == "gpu":
-        force_engine = "gpu"
-
-    selected_engine, reason = get_render_engine(
-        prefer_gpu=prefer_gpu,
-        force_engine=force_engine
-    )
-
-    print(f"Engine Selection: {reason}", file=sys.stderr)
-
     image_height = int(image_width / aspect_ratio)
     world = random_scene()
     camera = Camera(
@@ -116,20 +95,19 @@ def one_weekend(
         focus_dist=10.0,
     )
 
-    # Render with selected engine
-    if selected_engine == "gpu":
-        try:
-            from rayt.cupy_renderer import render_with_cupy
-            render_with_cupy(
-                world, camera, image_width, image_height, samples_per_pixel, max_depth
-            )
-        except Exception as e:
-            print(f"GPU rendering failed: {e}", file=sys.stderr)
-            print("Falling back to CPU rendering", file=sys.stderr)
-            render_with_numba(
-                world, camera, image_width, image_height, samples_per_pixel, max_depth
-            )
-    else:
-        render_with_numba(
-            world, camera, image_width, image_height, samples_per_pixel, max_depth
-        )
+    match engine:
+        case "gpu":
+            from rayt.cuda_renderer import render_with_cuda
+
+            render_func = render_with_cuda
+        case _:
+            render_func = render_with_numba
+
+    render_func(world, camera, image_width, image_height, samples_per_pixel, max_depth)
+
+
+@click.command()
+def test_gpu_availability() -> None:
+    from rayt.gpu_utils import detect_gpu_capabilities
+
+    detect_gpu_capabilities()

@@ -10,13 +10,9 @@ from rayt.material import Dielectric, Lambertian, Metal
 from rayt.sphere import Sphere
 from rayt.vec3 import Color
 
-try:
-    from numba import cuda
-    from numba.cuda.random import create_xoroshiro128p_states
-    from rayt.cuda_optimized import render_pixels_cuda
-    CUDA_AVAILABLE = True
-except ImportError:
-    CUDA_AVAILABLE = False
+from numba import cuda
+from numba.cuda.random import create_xoroshiro128p_states
+from rayt.cuda_optimized import render_pixels_cuda
 
 
 class CudaRenderer:
@@ -105,9 +101,6 @@ class CudaRenderer:
         max_depth: int,
     ) -> None:
         """Render using CUDA acceleration"""
-        if not CUDA_AVAILABLE:
-            raise RuntimeError("CUDA not available. Please install CuPy: uv add --optional cuda")
-
         print(
             f"Rendering {image_width}x{image_height} with CUDA GPU acceleration",
             file=sys.stderr,
@@ -119,6 +112,9 @@ class CudaRenderer:
 
         # Prepare scene data for CUDA
         self._prepare_scene_data(world, camera)
+
+        # Explicitly select CUDA device 0 to avoid IndexError
+        cuda.select_device(0)
 
         # Calculate optimal block and grid sizes
         block_size = (16, 16)
@@ -196,15 +192,3 @@ def render_with_cuda(
     renderer.render(
         world, camera, image_width, image_height, samples_per_pixel, max_depth
     )
-
-
-def is_cuda_available() -> bool:
-    """Check if CUDA is available"""
-    if not CUDA_AVAILABLE:
-        return False
-
-    try:
-        # Try to detect CUDA devices
-        return len(cuda.gpus) > 0
-    except Exception:
-        return False

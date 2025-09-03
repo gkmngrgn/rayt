@@ -44,8 +44,25 @@ def refract_cuda(
     etai_over_etat: types.float64,
     result: types.float64[:],
 ):
-    cos_theta = dot_cuda(-uv[0], n)
-    r_out_parallel = etai_over_etat * (uv + cos_theta * n)
+    neg_uv = cuda.local.array(3, types.float64)
+    neg_uv[0] = -uv[0]
+    neg_uv[1] = -uv[1]
+    neg_uv[2] = -uv[2]
+    cos_theta = dot_cuda(neg_uv, n)
+    cos_theta_n = cuda.local.array(3, types.float64)
+    cos_theta_n[0] = cos_theta * n[0]
+    cos_theta_n[1] = cos_theta * n[1]
+    cos_theta_n[2] = cos_theta * n[2]
+    
+    uv_plus_cos_n = cuda.local.array(3, types.float64)
+    uv_plus_cos_n[0] = uv[0] + cos_theta_n[0]
+    uv_plus_cos_n[1] = uv[1] + cos_theta_n[1]
+    uv_plus_cos_n[2] = uv[2] + cos_theta_n[2]
+    
+    r_out_parallel = cuda.local.array(3, types.float64)
+    r_out_parallel[0] = etai_over_etat * uv_plus_cos_n[0]
+    r_out_parallel[1] = etai_over_etat * uv_plus_cos_n[1]
+    r_out_parallel[2] = etai_over_etat * uv_plus_cos_n[2]
     r_out_perp_len = -math.sqrt(1.0 - length_squared_cuda(r_out_parallel))
 
     result[0] = r_out_parallel[0] + r_out_perp_len * n[0]
