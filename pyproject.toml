@@ -30,3 +30,11 @@ package = true
 dev = [
     "mypy>=1.17.1",
 ]
+
+[[tool.mypy.overrides]]
+module = "rayt.cuda_optimized"
+disable_error_code = ["misc"]
+
+[[tool.mypy.overrides]]
+module = "rayt.gpu_utils"
+disable_error_code = ["misc"]
