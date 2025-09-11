@@ -1,13 +1,11 @@
-"""
-Test script for Numba CUDA support.
-Diagnoses CUDA capability issues with the RTX 5080.
-"""
 import numpy as np
 
 
 try:
-    from numba import cuda, types
-    from numba.cuda.cudadrv.devicearray import DeviceNDArray
+    from numba import cuda
+
+    print("✓ Numba CUDA import successful")
+    is_cuda_available = cuda.is_available()
 except ImportError:
     print("✗ Numba not installed")
     exit(1)
@@ -17,26 +15,22 @@ def test_cuda_availability() -> bool:
     """Test basic CUDA availability"""
     print("=== Testing CUDA Availability ===")
 
-    try:
-        print("✓ Numba CUDA import successful")
-        print(f"✓ CUDA available: {cuda.is_available()}")
-
-        if not cuda.is_available():
-            print("✗ CUDA not available")
-            return False
-
+    if is_cuda_available:
+        print("✓ CUDA is available")
         return True
-    except Exception as e:
-        print(f"✗ Unexpected error: {e}")
-        return False
+
+    print("✗ CUDA is not available")
+    return False
+
 
 def test_device_detection() -> bool:
     """Test CUDA device detection"""
     print("\n=== Testing Device Detection ===")
 
-    try:
+    if not is_cuda_available:
+        return False
 
-        # Test device count
+    try:
         device_count = len(cuda.gpus)
         print(f"✓ Detected {device_count} CUDA device(s)")
 
@@ -65,9 +59,10 @@ def test_context_creation() -> bool:
     """Test CUDA context creation"""
     print("\n=== Testing Context Creation ===")
 
+    if not is_cuda_available:
+        return False
+    
     try:
-        from numba import cuda
-
         # Try to select device 0
         cuda.select_device(0)
         print("✓ Device 0 selected")
@@ -85,11 +80,12 @@ def test_simple_kernel() -> bool:
     """Test simple CUDA kernel compilation and execution"""
     print("\n=== Testing Simple CUDA Kernel ===")
 
+    if not is_cuda_available:
+        return False
+        
     try:
-        from numba import cuda
-
         @cuda.jit
-        def add_kernel(a: DeviceNDArray, b: DeviceNDArray, c: DeviceNDArray) -> None:
+        def add_kernel(a, b, c):
             idx = cuda.grid(1)
             if idx < len(c):
                 c[idx] = a[idx] + b[idx]
@@ -140,15 +136,16 @@ def test_device_function() -> bool:
     """Test CUDA device function compilation"""
     print("\n=== Testing Device Functions ===")
 
+    if not is_cuda_available:
+        return False
+    
     try:
-        from numba import cuda
-
         @cuda.jit(device=True)
-        def device_add(a: types.float32, b: types.float32) -> types.float32:
+        def device_add(a, b):
             return a + b
 
         @cuda.jit
-        def test_kernel(a: DeviceNDArray, b: DeviceNDArray, c: DeviceNDArray) -> None:
+        def test_kernel(a, b, c):
             idx = cuda.grid(1)
             if idx < len(c):
                 c[idx] = device_add(a[idx], b[idx])
@@ -183,9 +180,6 @@ def test_device_function() -> bool:
 
 def detect_gpu_capabilities() -> None:
     """Run all CUDA tests"""
-    print("CUDA Support Test for RTX 5080")
-    print("=" * 40)
-
     tests = [
         test_cuda_availability,
         test_device_detection,
@@ -219,10 +213,3 @@ def detect_gpu_capabilities() -> None:
 
     overall = all(results)
     print(f"\nOverall CUDA Support: {'WORKING' if overall else 'BROKEN'}")
-
-    if not overall:
-        print("\nTroubleshooting suggestions:")
-        print("1. Check CUDA driver version compatibility")
-        print("2. Try updating Numba: uv add numba@latest")
-        print("3. Check environment: echo $CUDA_VISIBLE_DEVICES")
-        print("4. RTX 5080 is very new - may need newer Numba/CUDA versions")
