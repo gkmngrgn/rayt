@@ -1,35 +1,32 @@
 import math
 
 import numpy as np
-import numpy.typing as npt
 from numba import jit
 
 
 @jit(nopython=True)
-def dot_numba(u: npt.NDArray[np.float64], v: npt.NDArray[np.float64]) -> float:
+def dot_numba(u, v):
     return u[0] * v[0] + u[1] * v[1] + u[2] * v[2]
 
 
 @jit(nopython=True)
-def length_squared_numba(v: npt.NDArray[np.float64]) -> float:
-    return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]
+def length_squared_numba(v):
+    return v[0] ** 2 + v[1] ** 2 + v[2] ** 2
 
 
 @jit(nopython=True)
-def length_numba(v: npt.NDArray[np.float64]) -> float:
+def length_numba(v):
     return math.sqrt(length_squared_numba(v))
 
 
 @jit(nopython=True)
-def unit_vector_numba(v: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
+def unit_vector_numba(v):
     len_v = length_numba(v)
     return np.array([v[0] / len_v, v[1] / len_v, v[2] / len_v])
 
 
 @jit(nopython=True)
-def reflect_numba(
-    v: npt.NDArray[np.float64], n: npt.NDArray[np.float64]
-) -> npt.NDArray[np.float64]:
+def reflect_numba(v, n):
     dot_vn = dot_numba(v, n)
     return np.array(
         [
@@ -41,9 +38,7 @@ def reflect_numba(
 
 
 @jit(nopython=True)
-def refract_numba(
-    uv: npt.NDArray[np.float64], n: npt.NDArray[np.float64], etai_over_etat: float
-) -> npt.NDArray[np.float64]:
+def refract_numba(uv, n, etai_over_etat):
     cos_theta = dot_numba(-uv, n)
     r_out_parallel = etai_over_etat * (uv + cos_theta * n)
     r_out_perp_len = -math.sqrt(1.0 - length_squared_numba(r_out_parallel))
@@ -52,7 +47,7 @@ def refract_numba(
 
 
 @jit(nopython=True)
-def random_unit_vector_numba() -> npt.NDArray[np.float64]:
+def random_unit_vector_numba():
     a = np.random.uniform(0.0, 2.0 * math.pi)
     z = np.random.uniform(-1.0, 1.0)
     r = math.sqrt(1.0 - z * z)
@@ -60,7 +55,7 @@ def random_unit_vector_numba() -> npt.NDArray[np.float64]:
 
 
 @jit(nopython=True)
-def random_in_unit_sphere_numba() -> npt.NDArray[np.float64]:
+def random_in_unit_sphere_numba():
     while True:
         p = np.array(
             [
@@ -76,16 +71,8 @@ def random_in_unit_sphere_numba() -> npt.NDArray[np.float64]:
 
 @jit(nopython=True)
 def sphere_hit_numba(
-    ray_origin: npt.NDArray[np.float64],
-    ray_direction: npt.NDArray[np.float64],
-    sphere_center: npt.NDArray[np.float64],
-    sphere_radius: float,
-    t_min: float,
-    t_max: float,
-) -> tuple[bool, float, npt.NDArray[np.float64], npt.NDArray[np.float64], bool]:
-    """
-    Returns: hit (bool), t (float), hit_point (array), normal (array), front_face (bool)
-    """
+    ray_origin, ray_direction, sphere_center, sphere_radius, t_min, t_max
+):
     oc = ray_origin - sphere_center
     a = length_squared_numba(ray_direction)
     half_b = dot_numba(oc, ray_direction)
@@ -116,30 +103,19 @@ def sphere_hit_numba(
 
 
 @jit(nopython=True)
-def schlick_numba(cosine: float, ref_idx: float) -> float:
+def schlick_numba(cosine, ref_idx):
     r0 = ((1.0 - ref_idx) / (1.0 + ref_idx)) ** 2
     return r0 + (1.0 - r0) * ((1.0 - cosine) ** 5)
 
 
 @jit(nopython=True)
-def scatter_lambertian_numba(
-    ray_direction: npt.NDArray[np.float64],
-    hit_point: npt.NDArray[np.float64],
-    normal: npt.NDArray[np.float64],
-) -> tuple[bool, npt.NDArray[np.float64], npt.NDArray[np.float64]]:
-    """Returns: scattered (bool), new_ray_origin, new_ray_direction"""
+def scatter_lambertian_numba(ray_direction, hit_point, normal):
     scatter_direction = normal + random_unit_vector_numba()
     return True, hit_point, scatter_direction
 
 
 @jit(nopython=True)
-def scatter_metal_numba(
-    ray_direction: npt.NDArray[np.float64],
-    hit_point: npt.NDArray[np.float64],
-    normal: npt.NDArray[np.float64],
-    fuzz: float,
-) -> tuple[bool, npt.NDArray[np.float64], npt.NDArray[np.float64]]:
-    """Returns: scattered (bool), new_ray_origin, new_ray_direction"""
+def scatter_metal_numba(ray_direction, hit_point, normal, fuzz):
     reflected = reflect_numba(unit_vector_numba(ray_direction), normal)
     scattered_direction = reflected + fuzz * random_in_unit_sphere_numba()
     scattered = dot_numba(scattered_direction, normal) > 0.0
@@ -147,14 +123,7 @@ def scatter_metal_numba(
 
 
 @jit(nopython=True)
-def scatter_dielectric_numba(
-    ray_direction: npt.NDArray[np.float64],
-    hit_point: npt.NDArray[np.float64],
-    normal: npt.NDArray[np.float64],
-    front_face: bool,
-    ref_idx: float,
-) -> tuple[bool, npt.NDArray[np.float64], npt.NDArray[np.float64]]:
-    """Returns: scattered (bool), new_ray_origin, new_ray_direction"""
+def scatter_dielectric_numba(ray_direction, hit_point, normal, front_face, ref_idx):
     etai_over_etat = (1.0 / ref_idx) if front_face else ref_idx
     unit_direction = unit_vector_numba(ray_direction)
     cos_theta = min(dot_numba(-unit_direction, normal), 1.0)
@@ -174,20 +143,7 @@ def scatter_dielectric_numba(
 
 
 @jit(nopython=True)
-def ray_color_numba(
-    ray_origin: npt.NDArray[np.float64],
-    ray_direction: npt.NDArray[np.float64],
-    spheres_data: npt.NDArray[np.float64],
-    materials_data: npt.NDArray[np.float64],
-    depth: int,
-) -> npt.NDArray[np.float64]:
-    """
-    Optimized ray color computation using Numba
-
-    spheres_data: array of shape (n_spheres, 4) where each row is [center_x, center_y, center_z, radius]
-    materials_data: array of shape (n_spheres, 5) where each row is [type, param1, param2, param3, param4]
-    type: 0=Lambertian, 1=Metal, 2=Dielectric
-    """
+def ray_color_numba(ray_origin, ray_direction, spheres_data, materials_data, depth):
     if depth <= 0:
         return np.array([0.0, 0.0, 0.0])
 
@@ -277,24 +233,16 @@ def ray_color_numba(
 
 @jit(nopython=True)
 def render_pixel_numba(
-    i: int,
-    j: int,
-    image_width: int,
-    image_height: int,
-    samples_per_pixel: int,
-    camera_data: npt.NDArray[np.float64],
-    spheres_data: npt.NDArray[np.float64],
-    materials_data: npt.NDArray[np.float64],
-    max_depth: int,
-) -> npt.NDArray[np.float64]:
-    """
-    Render a single pixel using Numba optimization
-    camera_data: [
-        origin_x, origin_y, origin_z, llc_x, llc_y, llc_z,
-        horizontal_x, horizontal_y, horizontal_z, vertical_x, vertical_y, vertical_z,
-        lens_radius, u_x, u_y, u_z, v_x, v_y, v_z,
-    ]
-    """
+    i,
+    j,
+    image_width,
+    image_height,
+    samples_per_pixel,
+    camera_data,
+    spheres_data,
+    materials_data,
+    max_depth,
+):
     pixel_color = np.array([0.0, 0.0, 0.0])
 
     origin = camera_data[0:3]
