@@ -9,7 +9,7 @@ RAYT is a Python ray tracing application that follows Peter Shirley's "Ray Traci
 - **Language**: Python 3.13
 - **Package Manager**: UV (Astral's fast Python package installer)
 - **Core Dependencies**: NumPy, Numba, Matplotlib, Click
-- **Optional GPU Support**: CuPy, Numba-CUDA
+- **Optional GPU Support**: Numba-CUDA
 - **Project Structure**:
   - `src/rayt/` - Main package with ray tracing components
   - `pyproject.toml` - Project configuration and dependencies
