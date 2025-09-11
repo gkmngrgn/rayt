@@ -6,13 +6,13 @@ import numpy as np
 
 
 try:
-    from numba import cuda
+    from numba import cuda, types
 except ImportError:
     print("✗ Numba not installed")
     exit(1)
 
 
-def test_cuda_availability():
+def test_cuda_availability() -> bool:
     """Test basic CUDA availability"""
     print("=== Testing CUDA Availability ===")
 
@@ -29,7 +29,7 @@ def test_cuda_availability():
         print(f"✗ Unexpected error: {e}")
         return False
 
-def test_device_detection():
+def test_device_detection() -> bool:
     """Test CUDA device detection"""
     print("\n=== Testing Device Detection ===")
 
@@ -60,7 +60,7 @@ def test_device_detection():
         print(f"✗ Device detection failed: {e}")
         return False
 
-def test_context_creation():
+def test_context_creation() -> bool:
     """Test CUDA context creation"""
     print("\n=== Testing Context Creation ===")
 
@@ -80,7 +80,7 @@ def test_context_creation():
         print(f"✗ Context creation failed: {e}")
         return False
 
-def test_simple_kernel():
+def test_simple_kernel() -> bool:
     """Test simple CUDA kernel compilation and execution"""
     print("\n=== Testing Simple CUDA Kernel ===")
 
@@ -88,7 +88,7 @@ def test_simple_kernel():
         from numba import cuda
 
         @cuda.jit
-        def add_kernel(a, b, c):
+        def add_kernel(a: types.CudaDeviceArray, b: types.CudaDeviceArray, c: types.CudaDeviceArray) -> None:
             idx = cuda.grid(1)
             if idx < len(c):
                 c[idx] = a[idx] + b[idx]
@@ -135,19 +135,19 @@ def test_simple_kernel():
         traceback.print_exc()
         return False
 
-def test_device_function():
+def test_device_function() -> bool:
     """Test CUDA device function compilation"""
     print("\n=== Testing Device Functions ===")
 
     try:
-        from numba import cuda, types
+        from numba import cuda
 
         @cuda.jit(device=True)
-        def device_add(a, b):
+        def device_add(a: types.float32, b: types.float32) -> types.float32:
             return a + b
 
         @cuda.jit
-        def test_kernel(a, b, c):
+        def test_kernel(a: types.CudaDeviceArray, b: types.CudaDeviceArray, c: types.CudaDeviceArray) -> None:
             idx = cuda.grid(1)
             if idx < len(c):
                 c[idx] = device_add(a[idx], b[idx])
@@ -180,7 +180,7 @@ def test_device_function():
         traceback.print_exc()
         return False
 
-def detect_gpu_capabilities():
+def detect_gpu_capabilities() -> None:
     """Run all CUDA tests"""
     print("CUDA Support Test for RTX 5080")
     print("=" * 40)

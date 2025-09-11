@@ -20,7 +20,7 @@ def length_cuda(v: types.float64[:]) -> types.float64:
 
 
 @cuda.jit(device=True)
-def unit_vector_cuda(v: types.float64[:], result: types.float64[:]):
+def unit_vector_cuda(v: types.float64[:], result: types.float64[:]) -> None:
     len_v = length_cuda(v)
     result[0] = v[0] / len_v
     result[1] = v[1] / len_v
@@ -30,7 +30,7 @@ def unit_vector_cuda(v: types.float64[:], result: types.float64[:]):
 @cuda.jit(device=True)
 def reflect_cuda(
     v: types.float64[:], n: types.float64[:], result: types.float64[:]
-):
+) -> None:
     dot_vn = dot_cuda(v, n)
     result[0] = v[0] - 2.0 * dot_vn * n[0]
     result[1] = v[1] - 2.0 * dot_vn * n[1]
@@ -43,7 +43,7 @@ def refract_cuda(
     n: types.float64[:],
     etai_over_etat: types.float64,
     result: types.float64[:],
-):
+) -> None:
     neg_uv = cuda.local.array(3, types.float64)
     neg_uv[0] = -uv[0]
     neg_uv[1] = -uv[1]
@@ -53,12 +53,12 @@ def refract_cuda(
     cos_theta_n[0] = cos_theta * n[0]
     cos_theta_n[1] = cos_theta * n[1]
     cos_theta_n[2] = cos_theta * n[2]
-    
+
     uv_plus_cos_n = cuda.local.array(3, types.float64)
     uv_plus_cos_n[0] = uv[0] + cos_theta_n[0]
     uv_plus_cos_n[1] = uv[1] + cos_theta_n[1]
     uv_plus_cos_n[2] = uv[2] + cos_theta_n[2]
-    
+
     r_out_parallel = cuda.local.array(3, types.float64)
     r_out_parallel[0] = etai_over_etat * uv_plus_cos_n[0]
     r_out_parallel[1] = etai_over_etat * uv_plus_cos_n[1]
@@ -71,7 +71,7 @@ def refract_cuda(
 
 
 @cuda.jit(device=True)
-def random_unit_vector_cuda(rng_states, thread_id: int, result: types.float64[:]):
+def random_unit_vector_cuda(rng_states: types.CPointer, thread_id: int, result: types.float64[:]) -> None:
     a = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 * math.pi
     z = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
     r = math.sqrt(1.0 - z * z)
@@ -81,7 +81,7 @@ def random_unit_vector_cuda(rng_states, thread_id: int, result: types.float64[:]
 
 
 @cuda.jit(device=True)
-def random_in_unit_sphere_cuda(rng_states, thread_id: int, result: types.float64[:]):
+def random_in_unit_sphere_cuda(rng_states: types.CPointer, thread_id: int, result: types.float64[:]) -> None:
     while True:
         result[0] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
         result[1] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
@@ -163,7 +163,7 @@ def scatter_lambertian_cuda(
     ray_direction: types.float64[:],
     hit_point: types.float64[:],
     normal: types.float64[:],
-    rng_states,
+    rng_states: types.CPointer,
     thread_id: int,
     new_origin: types.float64[:],
     new_direction: types.float64[:],
@@ -189,7 +189,7 @@ def scatter_metal_cuda(
     hit_point: types.float64[:],
     normal: types.float64[:],
     fuzz: types.float64,
-    rng_states,
+    rng_states: types.CPointer,
     thread_id: int,
     new_origin: types.float64[:],
     new_direction: types.float64[:],
@@ -222,7 +222,7 @@ def scatter_dielectric_cuda(
     normal: types.float64[:],
     front_face: types.boolean,
     ref_idx: types.float64,
-    rng_states,
+    rng_states: types.CPointer,
     thread_id: int,
     new_origin: types.float64[:],
     new_direction: types.float64[:],
@@ -262,10 +262,10 @@ def ray_color_cuda(
     spheres_data: types.float64[:, :],
     materials_data: types.float64[:, :],
     depth: int,
-    rng_states,
+    rng_states: types.CPointer,
     thread_id: int,
     result: types.float64[:],
-):
+) -> None:
     """
     Optimized ray color computation using CUDA
     Writes result in-place: [r, g, b]
@@ -433,9 +433,9 @@ def render_pixels_cuda(
     spheres_data: types.float64[:, :],
     materials_data: types.float64[:, :],
     max_depth: int,
-    rng_states,
+    rng_states: types.CPointer,
     output: types.float64[:, :, :],
-):
+) -> None:
     """
     CUDA kernel to render pixels in parallel
     output: array of shape (image_height, image_width, 3) for RGB values

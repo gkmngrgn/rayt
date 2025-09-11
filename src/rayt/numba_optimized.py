@@ -1,4 +1,5 @@
 import math
+from typing import cast
 
 import numpy as np
 import numpy.typing as npt
@@ -48,7 +49,7 @@ def refract_numba(
     r_out_parallel = etai_over_etat * (uv + cos_theta * n)
     r_out_perp_len = -math.sqrt(1.0 - length_squared_numba(r_out_parallel))
     r_out_perp = r_out_perp_len * n
-    return r_out_parallel + r_out_perp
+    return cast(npt.NDArray[np.float64], r_out_parallel + r_out_perp)
 
 
 @jit(nopython=True)  # type: ignore[misc]
@@ -232,7 +233,7 @@ def ray_color_numba(
             sky_color = (1.0 - t) * np.array([1.0, 1.0, 1.0]) + t * np.array(
                 [0.5, 0.7, 1.0]
             )
-            return current_color * sky_color
+            return cast(npt.NDArray[np.float64], current_color * sky_color)
 
         # Material scattering
         material = materials_data[hit_sphere_idx]
