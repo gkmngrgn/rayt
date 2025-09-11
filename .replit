@@ -4,3 +4,26 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Ray Tracer"
+
+[[workflows.workflow]]
+name = "Ray Tracer"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "export PATH=\"$HOME/workspace/.local/share/../bin:$PATH\" && .pythonlibs/bin/one-weekend --image-width=300 --samples-per-pixel=10 > output.ppm && echo \"Ray tracing completed! Output saved to output.ppm\" && ls -la output.ppm"
+
+[workflows.workflow.metadata]
+outputType = "console"
