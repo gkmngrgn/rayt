@@ -7,6 +7,7 @@ import numpy as np
 
 try:
     from numba import cuda, types
+    from numba.cuda.cudadrv.devicearray import DeviceNDArray
 except ImportError:
     print("✗ Numba not installed")
     exit(1)
@@ -88,7 +89,7 @@ def test_simple_kernel() -> bool:
         from numba import cuda
 
         @cuda.jit
-        def add_kernel(a: types.CudaDeviceArray, b: types.CudaDeviceArray, c: types.CudaDeviceArray) -> None:
+        def add_kernel(a: DeviceNDArray, b: DeviceNDArray, c: DeviceNDArray) -> None:
             idx = cuda.grid(1)
             if idx < len(c):
                 c[idx] = a[idx] + b[idx]
@@ -147,7 +148,7 @@ def test_device_function() -> bool:
             return a + b
 
         @cuda.jit
-        def test_kernel(a: types.CudaDeviceArray, b: types.CudaDeviceArray, c: types.CudaDeviceArray) -> None:
+        def test_kernel(a: DeviceNDArray, b: DeviceNDArray, c: DeviceNDArray) -> None:
             idx = cuda.grid(1)
             if idx < len(c):
                 c[idx] = device_add(a[idx], b[idx])
