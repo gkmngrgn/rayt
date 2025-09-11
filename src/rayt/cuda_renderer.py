@@ -120,7 +120,7 @@ class CudaRenderer:
         block_size = (16, 16)
         grid_size = (
             (image_width + block_size[0] - 1) // block_size[0],
-            (image_height + block_size[1] - 1) // block_size[1]
+            (image_height + block_size[1] - 1) // block_size[1],
         )
 
         print(f"CUDA grid size: {grid_size}, block size: {block_size}", file=sys.stderr)
@@ -167,13 +167,15 @@ class CudaRenderer:
 
         # Output image data
         for j in range(image_height):
-            print(f"\rConverting scanlines: {j+1}/{image_height}", end=" ", file=sys.stderr)
+            print(
+                f"\rConverting scanlines: {j + 1}/{image_height}",
+                end=" ",
+                file=sys.stderr,
+            )
 
             for i in range(image_width):
                 # Convert back to Color object for output
-                pixel_color = Color(
-                    output[j, i, 0], output[j, i, 1], output[j, i, 2]
-                )
+                pixel_color = Color(output[j, i, 0], output[j, i, 1], output[j, i, 2])
                 print(get_color(pixel_color, samples_per_pixel))
 
         print("\nDone.", file=sys.stderr)

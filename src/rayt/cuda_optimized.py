@@ -71,7 +71,9 @@ def refract_cuda(
 
 
 @cuda.jit(device=True)
-def random_unit_vector_cuda(rng_states: types.CPointer, thread_id: int, result: types.float64[:]) -> None:
+def random_unit_vector_cuda(
+    rng_states: types.CPointer, thread_id: int, result: types.float64[:]
+) -> None:
     a = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 * math.pi
     z = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
     r = math.sqrt(1.0 - z * z)
@@ -81,7 +83,9 @@ def random_unit_vector_cuda(rng_states: types.CPointer, thread_id: int, result: 
 
 
 @cuda.jit(device=True)
-def random_in_unit_sphere_cuda(rng_states: types.CPointer, thread_id: int, result: types.float64[:]) -> None:
+def random_in_unit_sphere_cuda(
+    rng_states: types.CPointer, thread_id: int, result: types.float64[:]
+) -> None:
     while True:
         result[0] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
         result[1] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
@@ -245,7 +249,9 @@ def scatter_dielectric_cuda(
     new_origin[1] = hit_point[1]
     new_origin[2] = hit_point[2]
 
-    if etai_over_etat * sin_theta > 1.0 or xoroshiro128p_uniform_float64(rng_states, thread_id) < schlick_cuda(cos_theta, etai_over_etat):
+    if etai_over_etat * sin_theta > 1.0 or xoroshiro128p_uniform_float64(
+        rng_states, thread_id
+    ) < schlick_cuda(cos_theta, etai_over_etat):
         # Reflect
         reflect_cuda(unit_direction, normal, new_direction)
     else:
@@ -359,8 +365,13 @@ def ray_color_cuda(
             albedo_b = materials_data[hit_sphere_idx, 3]
 
             scattered = scatter_lambertian_cuda(
-                current_ray_direction, hit_point, hit_normal, rng_states, thread_id,
-                new_origin, new_direction
+                current_ray_direction,
+                hit_point,
+                hit_normal,
+                rng_states,
+                thread_id,
+                new_origin,
+                new_direction,
             )
             if scattered:
                 current_color[0] *= albedo_r
@@ -385,8 +396,14 @@ def ray_color_cuda(
             fuzz = materials_data[hit_sphere_idx, 4]
 
             scattered = scatter_metal_cuda(
-                current_ray_direction, hit_point, hit_normal, fuzz, rng_states, thread_id,
-                new_origin, new_direction
+                current_ray_direction,
+                hit_point,
+                hit_normal,
+                fuzz,
+                rng_states,
+                thread_id,
+                new_origin,
+                new_direction,
             )
             if scattered:
                 current_color[0] *= albedo_r
@@ -408,8 +425,15 @@ def ray_color_cuda(
             ref_idx = materials_data[hit_sphere_idx, 1]
 
             scatter_dielectric_cuda(
-                current_ray_direction, hit_point, hit_normal, hit_front_face, ref_idx,
-                rng_states, thread_id, new_origin, new_direction
+                current_ray_direction,
+                hit_point,
+                hit_normal,
+                hit_front_face,
+                ref_idx,
+                rng_states,
+                thread_id,
+                new_origin,
+                new_direction,
             )
             # Dielectric doesn't attenuate color (white)
             current_ray_origin[0] = new_origin[0]
@@ -473,19 +497,44 @@ def render_pixels_cuda(
 
     for _ in range(samples_per_pixel):
         # Add random sampling
-        u_coord = (i + xoroshiro128p_uniform_float64(rng_states, thread_id)) / (image_width - 1)
-        v_coord = (j + xoroshiro128p_uniform_float64(rng_states, thread_id)) / (image_height - 1)
+        u_coord = (i + xoroshiro128p_uniform_float64(rng_states, thread_id)) / (
+            image_width - 1
+        )
+        v_coord = (j + xoroshiro128p_uniform_float64(rng_states, thread_id)) / (
+            image_height - 1
+        )
 
         # Simple camera ray (ignoring depth of field for now in this optimization)
         ray_direction = cuda.local.array(3, types.float64)
-        ray_direction[0] = lower_left_corner[0] + u_coord * horizontal[0] + v_coord * vertical[0] - origin[0]
-        ray_direction[1] = lower_left_corner[1] + u_coord * horizontal[1] + v_coord * vertical[1] - origin[1]
-        ray_direction[2] = lower_left_corner[2] + u_coord * horizontal[2] + v_coord * vertical[2] - origin[2]
+        ray_direction[0] = (
+            lower_left_corner[0]
+            + u_coord * horizontal[0]
+            + v_coord * vertical[0]
+            - origin[0]
+        )
+        ray_direction[1] = (
+            lower_left_corner[1]
+            + u_coord * horizontal[1]
+            + v_coord * vertical[1]
+            - origin[1]
+        )
+        ray_direction[2] = (
+            lower_left_corner[2]
+            + u_coord * horizontal[2]
+            + v_coord * vertical[2]
+            - origin[2]
+        )
 
         color = cuda.local.array(3, types.float64)
         ray_color_cuda(
-            origin, ray_direction, spheres_data, materials_data, max_depth,
-            rng_states, thread_id, color
+            origin,
+            ray_direction,
+            spheres_data,
+            materials_data,
+            max_depth,
+            rng_states,
+            thread_id,
+            color,
         )
 
         pixel_color[0] += color[0]
