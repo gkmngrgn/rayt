@@ -1,33 +1,32 @@
 import math
-from typing import cast
 
 import numpy as np
 import numpy.typing as npt
 from numba import jit
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def dot_numba(u: npt.NDArray[np.float64], v: npt.NDArray[np.float64]) -> float:
-    return u[0] * v[0] + u[1] * v[1] + u[2] * v[2]  # type: ignore[no-any-return]
+    return u[0] * v[0] + u[1] * v[1] + u[2] * v[2]
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def length_squared_numba(v: npt.NDArray[np.float64]) -> float:
-    return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]  # type: ignore[no-any-return]
+    return v[0] * v[0] + v[1] * v[1] + v[2] * v[2]
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def length_numba(v: npt.NDArray[np.float64]) -> float:
     return math.sqrt(length_squared_numba(v))
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def unit_vector_numba(v: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
     len_v = length_numba(v)
     return np.array([v[0] / len_v, v[1] / len_v, v[2] / len_v])
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def reflect_numba(
     v: npt.NDArray[np.float64], n: npt.NDArray[np.float64]
 ) -> npt.NDArray[np.float64]:
@@ -41,7 +40,7 @@ def reflect_numba(
     )
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def refract_numba(
     uv: npt.NDArray[np.float64], n: npt.NDArray[np.float64], etai_over_etat: float
 ) -> npt.NDArray[np.float64]:
@@ -49,10 +48,10 @@ def refract_numba(
     r_out_parallel = etai_over_etat * (uv + cos_theta * n)
     r_out_perp_len = -math.sqrt(1.0 - length_squared_numba(r_out_parallel))
     r_out_perp = r_out_perp_len * n
-    return cast(npt.NDArray[np.float64], r_out_parallel + r_out_perp)
+    return r_out_parallel + r_out_perp
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def random_unit_vector_numba() -> npt.NDArray[np.float64]:
     a = np.random.uniform(0.0, 2.0 * math.pi)
     z = np.random.uniform(-1.0, 1.0)
@@ -60,7 +59,7 @@ def random_unit_vector_numba() -> npt.NDArray[np.float64]:
     return np.array([r * math.cos(a), r * math.sin(a), z])
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def random_in_unit_sphere_numba() -> npt.NDArray[np.float64]:
     while True:
         p = np.array(
@@ -75,7 +74,7 @@ def random_in_unit_sphere_numba() -> npt.NDArray[np.float64]:
         return p
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def sphere_hit_numba(
     ray_origin: npt.NDArray[np.float64],
     ray_direction: npt.NDArray[np.float64],
@@ -116,13 +115,13 @@ def sphere_hit_numba(
     return True, t, hit_point, normal, front_face
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def schlick_numba(cosine: float, ref_idx: float) -> float:
     r0 = ((1.0 - ref_idx) / (1.0 + ref_idx)) ** 2
     return r0 + (1.0 - r0) * ((1.0 - cosine) ** 5)
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def scatter_lambertian_numba(
     ray_direction: npt.NDArray[np.float64],
     hit_point: npt.NDArray[np.float64],
@@ -133,7 +132,7 @@ def scatter_lambertian_numba(
     return True, hit_point, scatter_direction
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def scatter_metal_numba(
     ray_direction: npt.NDArray[np.float64],
     hit_point: npt.NDArray[np.float64],
@@ -147,7 +146,7 @@ def scatter_metal_numba(
     return scattered, hit_point, scattered_direction
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def scatter_dielectric_numba(
     ray_direction: npt.NDArray[np.float64],
     hit_point: npt.NDArray[np.float64],
@@ -174,7 +173,7 @@ def scatter_dielectric_numba(
     return True, hit_point, scattered_direction
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def ray_color_numba(
     ray_origin: npt.NDArray[np.float64],
     ray_direction: npt.NDArray[np.float64],
@@ -233,7 +232,7 @@ def ray_color_numba(
             sky_color = (1.0 - t) * np.array([1.0, 1.0, 1.0]) + t * np.array(
                 [0.5, 0.7, 1.0]
             )
-            return cast(npt.NDArray[np.float64], current_color * sky_color)
+            return current_color * sky_color
 
         # Material scattering
         material = materials_data[hit_sphere_idx]
@@ -276,7 +275,7 @@ def ray_color_numba(
     return np.array([0.0, 0.0, 0.0])  # Exceeded max depth
 
 
-@jit(nopython=True)  # type: ignore[misc]
+@jit(nopython=True)
 def render_pixel_numba(
     i: int,
     j: int,
@@ -302,9 +301,6 @@ def render_pixel_numba(
     lower_left_corner = camera_data[3:6]
     horizontal = camera_data[6:9]
     vertical = camera_data[9:12]
-    # lens_radius = camera_data[12]  # Unused for now
-    # u = camera_data[13:16]  # Unused for now
-    # v = camera_data[16:19]  # Unused for now
 
     for _ in range(samples_per_pixel):
         # Add random sampling
