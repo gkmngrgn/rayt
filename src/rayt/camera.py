@@ -1,6 +1,5 @@
 import math
 
-from rayt.ray import Ray
 from rayt.vec3 import Point3, Vec3, cross, random_in_unit_disk, unit_vector
 
 
@@ -37,15 +36,3 @@ class Camera:
         self.lens_radius = aperture / 2.0
         self.u = u
         self.v = v
-
-    def get_ray(self, s: float, t: float) -> Ray:
-        rd = self.lens_radius * random_in_unit_disk()
-        offset = self.u * rd.x + self.v * rd.y
-        return Ray(
-            self.origin + offset,
-            self.lower_left_corner
-            + s * self.horizontal
-            + t * self.vertical
-            - self.origin
-            - offset,
-        )
