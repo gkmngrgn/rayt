@@ -74,6 +74,17 @@ def random_unit_vector_cuda(rng_states, thread_id, result):
 
 
 @cuda.jit(device=True)
+def random_in_unit_disk_cuda(rng_states, thread_id, result):
+    """Generate random point in unit disk for depth of field"""
+    while True:
+        result[0] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
+        result[1] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
+        result[2] = 0.0
+        if length_squared_cuda(result) < 1.0:
+            break
+
+
+@cuda.jit(device=True)
 def random_in_unit_sphere_cuda(rng_states, thread_id, result):
     while True:
         result[0] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
@@ -449,6 +460,8 @@ def render_pixels_cuda(
     lower_left_corner = cuda.local.array(3, types.float64)
     horizontal = cuda.local.array(3, types.float64)
     vertical = cuda.local.array(3, types.float64)
+    u = cuda.local.array(3, types.float64)
+    v = cuda.local.array(3, types.float64)
 
     origin[0] = camera_data[0]
     origin[1] = camera_data[1]
@@ -462,6 +475,13 @@ def render_pixels_cuda(
     vertical[0] = camera_data[9]
     vertical[1] = camera_data[10]
     vertical[2] = camera_data[11]
+    lens_radius = camera_data[12]
+    u[0] = camera_data[13]
+    u[1] = camera_data[14]
+    u[2] = camera_data[15]
+    v[0] = camera_data[16]
+    v[1] = camera_data[17]
+    v[2] = camera_data[18]
 
     for _ in range(samples_per_pixel):
         # Add random sampling
@@ -472,30 +492,48 @@ def render_pixels_cuda(
             image_height - 1
         )
 
-        # Simple camera ray (ignoring depth of field for now in this optimization)
+        # Depth of field ray generation
+        rd = cuda.local.array(3, types.float64)
+        random_in_unit_disk_cuda(rng_states, thread_id, rd)
+        
+        offset = cuda.local.array(3, types.float64)
+        offset[0] = u[0] * rd[0] + v[0] * rd[1]
+        offset[1] = u[1] * rd[0] + v[1] * rd[1]
+        offset[2] = u[2] * rd[0] + v[2] * rd[1]
+        
+        # Scale by lens radius
+        offset[0] *= lens_radius
+        offset[1] *= lens_radius
+        offset[2] *= lens_radius
+        
+        ray_origin = cuda.local.array(3, types.float64)
+        ray_origin[0] = origin[0] + offset[0]
+        ray_origin[1] = origin[1] + offset[1]
+        ray_origin[2] = origin[2] + offset[2]
+        
         ray_direction = cuda.local.array(3, types.float64)
         ray_direction[0] = (
             lower_left_corner[0]
             + u_coord * horizontal[0]
             + v_coord * vertical[0]
-            - origin[0]
+            - ray_origin[0]
         )
         ray_direction[1] = (
             lower_left_corner[1]
             + u_coord * horizontal[1]
             + v_coord * vertical[1]
-            - origin[1]
+            - ray_origin[1]
         )
         ray_direction[2] = (
             lower_left_corner[2]
             + u_coord * horizontal[2]
             + v_coord * vertical[2]
-            - origin[2]
+            - ray_origin[2]
         )
 
         color = cuda.local.array(3, types.float64)
         ray_color_cuda(
-            origin,
+            ray_origin,
             ray_direction,
             spheres_data,
             materials_data,

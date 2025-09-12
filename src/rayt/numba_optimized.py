@@ -55,6 +55,22 @@ def random_unit_vector_numba():
 
 
 @jit(nopython=True)
+def random_in_unit_disk_numba():
+    """Generate random point in unit disk for depth of field"""
+    while True:
+        p = np.array(
+            [
+                np.random.uniform(-1.0, 1.0),
+                np.random.uniform(-1.0, 1.0),
+                0.0
+            ]
+        )
+        if length_squared_numba(p) >= 1.0:
+            continue
+        return p
+
+
+@jit(nopython=True)
 def random_in_unit_sphere_numba():
     while True:
         p = np.array(
@@ -249,19 +265,25 @@ def render_pixel_numba(
     lower_left_corner = camera_data[3:6]
     horizontal = camera_data[6:9]
     vertical = camera_data[9:12]
+    lens_radius = camera_data[12]
+    u = camera_data[13:16]
+    v = camera_data[16:19]
 
     for _ in range(samples_per_pixel):
         # Add random sampling
         u_coord = (i + np.random.random()) / (image_width - 1)
         v_coord = (j + np.random.random()) / (image_height - 1)
 
-        # Simple camera ray (ignoring depth of field for now in this optimization)
+        # Depth of field ray generation
+        rd = lens_radius * random_in_unit_disk_numba()
+        offset = u * rd[0] + v * rd[1]
+        ray_origin = origin + offset
         ray_direction = (
-            lower_left_corner + u_coord * horizontal + v_coord * vertical - origin
+            lower_left_corner + u_coord * horizontal + v_coord * vertical - ray_origin
         )
 
         color = ray_color_numba(
-            origin, ray_direction, spheres_data, materials_data, max_depth
+            ray_origin, ray_direction, spheres_data, materials_data, max_depth
         )
         pixel_color += color
 
