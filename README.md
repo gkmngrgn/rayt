@@ -6,20 +6,23 @@ Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.git
 
 ## How to Build
 
-I tested the project using the latest stable version of Python (3.13).
+This project uses Python 3.13 and UV package manager.
 
 ```shell
-uv run one-weekend --image-width=1200 > image.ppm
+# Basic rendering (300px wide, CPU engine)
+uv run one-weekend --image-width=300 --samples-per-pixel=20 > image.ppm
+
+# High quality rendering
+uv run one-weekend --image-width=1200 --samples-per-pixel=100 > image.ppm
+
+# GPU rendering (if CUDA available)
+uv run one-weekend --image-width=300 --samples-per-pixel=20 --engine=gpu > image.ppm
 ```
 
-Performance status (image width is 300px):
+## Features
 
-```shell
-time uv run one-weekend --image-width=1200 > image.ppm
-```
-
-```
-Scanlines remaining: 1
-Done.
-uv run one-weekend --image-width=1200 > image.ppm  47.36s user 0.03s system 99% cpu 47.504 total
-```
+- **CPU Optimization**: Numba JIT compilation for fast CPU rendering
+- **GPU Acceleration**: CUDA support for parallel GPU rendering  
+- **Depth of Field**: Camera blur effects with configurable aperture and focus distance
+- **Materials**: Lambertian, Metal, and Dielectric (glass) materials
+- **CLI Interface**: Configurable image dimensions, sampling, and rendering engines
