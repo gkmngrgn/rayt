@@ -6,7 +6,7 @@ RAYT is a Python ray tracing application that follows Peter Shirley's "Ray Traci
 
 ## Project Architecture
 
-- **Language**: Python 3.13
+- **Language**: Python 3.12+
 - **Package Manager**: UV (Astral's fast Python package installer)
 - **Core Dependencies**: NumPy, Numba, Matplotlib, Click
 - **Optional GPU Support**: Numba-CUDA
@@ -17,7 +17,7 @@ RAYT is a Python ray tracing application that follows Peter Shirley's "Ray Traci
 
 ## Current Setup
 
-- Python 3.13 environment installed
+- Python 3.12+ environment installed
 - Dependencies installed via UV package manager
 - Virtual environment located at `.pythonlibs/`
 - CLI commands available through installed scripts
