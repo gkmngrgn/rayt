@@ -1,9 +1,6 @@
 import math
 
-from rayt.hittable import Hittable
-from rayt.vec3 import Color, unit_vector
-
-INFINITY = float("inf")
+from rayt.vec3 import Color
 
 
 def clamp(x: float, min_val: float, max_val: float) -> float:
