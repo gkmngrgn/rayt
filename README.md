@@ -1,3 +1,12 @@
+---
+title: Rayt
+emoji: 🎨
+colorFrom: blue
+colorTo: green
+sdk: gradio
+app_file: app.py
+---
+
 # RAYT
 
 Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.github.io/) trilogy. The goal is to have the same output with Python, solving the performance problems.
