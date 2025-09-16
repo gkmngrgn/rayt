@@ -1,0 +1,3 @@
+[submodule "src/rayt-web"]
+	path = src/rayt-web
+	url = https://huggingface.co/spaces/goedev/rayt-web
