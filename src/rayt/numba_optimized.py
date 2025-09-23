@@ -58,13 +58,7 @@ def random_unit_vector_numba():
 def random_in_unit_disk_numba():
     """Generate random point in unit disk for depth of field"""
     while True:
-        p = np.array(
-            [
-                np.random.uniform(-1.0, 1.0),
-                np.random.uniform(-1.0, 1.0),
-                0.0
-            ]
-        )
+        p = np.array([np.random.uniform(-1.0, 1.0), np.random.uniform(-1.0, 1.0), 0.0])
         if length_squared_numba(p) >= 1.0:
             continue
         return p

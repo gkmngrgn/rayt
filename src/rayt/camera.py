@@ -1,6 +1,6 @@
 import math
 
-from rayt.vec3 import Point3, Vec3, cross, random_in_unit_disk, unit_vector
+from rayt.vec3 import Point3, Vec3, cross, unit_vector
 
 
 def degrees_to_radians(degrees: float) -> float:

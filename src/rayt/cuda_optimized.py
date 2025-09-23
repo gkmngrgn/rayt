@@ -495,22 +495,22 @@ def render_pixels_cuda(
         # Depth of field ray generation
         rd = cuda.local.array(3, types.float64)
         random_in_unit_disk_cuda(rng_states, thread_id, rd)
-        
+
         offset = cuda.local.array(3, types.float64)
         offset[0] = u[0] * rd[0] + v[0] * rd[1]
         offset[1] = u[1] * rd[0] + v[1] * rd[1]
         offset[2] = u[2] * rd[0] + v[2] * rd[1]
-        
+
         # Scale by lens radius
         offset[0] *= lens_radius
         offset[1] *= lens_radius
         offset[2] *= lens_radius
-        
+
         ray_origin = cuda.local.array(3, types.float64)
         ray_origin[0] = origin[0] + offset[0]
         ray_origin[1] = origin[1] + offset[1]
         ray_origin[2] = origin[2] + offset[2]
-        
+
         ray_direction = cuda.local.array(3, types.float64)
         ray_direction[0] = (
             lower_left_corner[0]

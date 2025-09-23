@@ -109,14 +109,6 @@ def random_unit_vector() -> Vec3:
     return Vec3(r * math.cos(a), r * math.sin(a), z)
 
 
-def random_in_unit_disk() -> Vec3:
-    while True:
-        p = Vec3(random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0), 0.0)
-        if p.length_squared >= 1.0:
-            continue
-        return p
-
-
 def reflect(v: Vec3, n: Vec3) -> Vec3:
     return v - 2.0 * dot(v, n) * n
 

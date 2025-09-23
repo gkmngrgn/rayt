@@ -1,12 +1,3 @@
----
-title: Rayt
-emoji: 🎨
-colorFrom: blue
-colorTo: green
-sdk: gradio
-app_file: app.py
----
-
 # RAYT
 
 Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.github.io/) trilogy. The goal is to have the same output with Python, solving the performance problems.
@@ -31,7 +22,7 @@ uv run one-weekend --image-width=300 --samples-per-pixel=20 --engine=gpu > image
 ## Features
 
 - **CPU Optimization**: Numba JIT compilation for fast CPU rendering
-- **GPU Acceleration**: CUDA support for parallel GPU rendering  
+- **GPU Acceleration**: CUDA support for parallel GPU rendering
 - **Depth of Field**: Camera blur effects with configurable aperture and focus distance
 - **Materials**: Lambertian, Metal, and Dielectric (glass) materials
 - **CLI Interface**: Configurable image dimensions, sampling, and rendering engines
