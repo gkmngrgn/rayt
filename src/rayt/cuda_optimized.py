@@ -1,7 +1,7 @@
 import math
 
 from numba import cuda, types
-from numba.cuda.random import xoroshiro128p_uniform_float64
+from numba.cuda.random import xoroshiro128p_uniform_float32
 
 
 @cuda.jit(device=True)
@@ -37,36 +37,25 @@ def reflect_cuda(v, n, result):
 
 @cuda.jit(device=True)
 def refract_cuda(uv, n, etai_over_etat, result):
-    neg_uv = cuda.local.array(3, types.float64)
-    neg_uv[0] = -uv[0]
-    neg_uv[1] = -uv[1]
-    neg_uv[2] = -uv[2]
-    cos_theta = dot_cuda(neg_uv, n)
-    cos_theta_n = cuda.local.array(3, types.float64)
-    cos_theta_n[0] = cos_theta * n[0]
-    cos_theta_n[1] = cos_theta * n[1]
-    cos_theta_n[2] = cos_theta * n[2]
+    cos_theta = -dot_cuda(uv, n)
+    r_out_parallel_x = etai_over_etat * (uv[0] + cos_theta * n[0])
+    r_out_parallel_y = etai_over_etat * (uv[1] + cos_theta * n[1])
+    r_out_parallel_z = etai_over_etat * (uv[2] + cos_theta * n[2])
 
-    uv_plus_cos_n = cuda.local.array(3, types.float64)
-    uv_plus_cos_n[0] = uv[0] + cos_theta_n[0]
-    uv_plus_cos_n[1] = uv[1] + cos_theta_n[1]
-    uv_plus_cos_n[2] = uv[2] + cos_theta_n[2]
+    r_out_parallel_len_sq = (
+        r_out_parallel_x**2 + r_out_parallel_y**2 + r_out_parallel_z**2
+    )
+    r_out_perp_len = -math.sqrt(1.0 - r_out_parallel_len_sq)
 
-    r_out_parallel = cuda.local.array(3, types.float64)
-    r_out_parallel[0] = etai_over_etat * uv_plus_cos_n[0]
-    r_out_parallel[1] = etai_over_etat * uv_plus_cos_n[1]
-    r_out_parallel[2] = etai_over_etat * uv_plus_cos_n[2]
-    r_out_perp_len = -math.sqrt(1.0 - length_squared_cuda(r_out_parallel))
-
-    result[0] = r_out_parallel[0] + r_out_perp_len * n[0]
-    result[1] = r_out_parallel[1] + r_out_perp_len * n[1]
-    result[2] = r_out_parallel[2] + r_out_perp_len * n[2]
+    result[0] = r_out_parallel_x + r_out_perp_len * n[0]
+    result[1] = r_out_parallel_y + r_out_perp_len * n[1]
+    result[2] = r_out_parallel_z + r_out_perp_len * n[2]
 
 
 @cuda.jit(device=True)
 def random_unit_vector_cuda(rng_states, thread_id, result):
-    a = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 * math.pi
-    z = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
+    a = xoroshiro128p_uniform_float32(rng_states, thread_id) * 2.0 * math.pi
+    z = xoroshiro128p_uniform_float32(rng_states, thread_id) * 2.0 - 1.0
     r = math.sqrt(1.0 - z * z)
     result[0] = r * math.cos(a)
     result[1] = r * math.sin(a)
@@ -77,8 +66,8 @@ def random_unit_vector_cuda(rng_states, thread_id, result):
 def random_in_unit_disk_cuda(rng_states, thread_id, result):
     """Generate random point in unit disk for depth of field"""
     while True:
-        result[0] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
-        result[1] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
+        result[0] = xoroshiro128p_uniform_float32(rng_states, thread_id) * 2.0 - 1.0
+        result[1] = xoroshiro128p_uniform_float32(rng_states, thread_id) * 2.0 - 1.0
         result[2] = 0.0
         if length_squared_cuda(result) < 1.0:
             break
@@ -87,9 +76,9 @@ def random_in_unit_disk_cuda(rng_states, thread_id, result):
 @cuda.jit(device=True)
 def random_in_unit_sphere_cuda(rng_states, thread_id, result):
     while True:
-        result[0] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
-        result[1] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
-        result[2] = xoroshiro128p_uniform_float64(rng_states, thread_id) * 2.0 - 1.0
+        result[0] = xoroshiro128p_uniform_float32(rng_states, thread_id) * 2.0 - 1.0
+        result[1] = xoroshiro128p_uniform_float32(rng_states, thread_id) * 2.0 - 1.0
+        result[2] = xoroshiro128p_uniform_float32(rng_states, thread_id) * 2.0 - 1.0
         if length_squared_cuda(result) < 1.0:
             break
 
@@ -105,14 +94,13 @@ def sphere_hit_cuda(
     hit_point,
     normal,
 ):
-    oc = cuda.local.array(3, types.float64)
-    oc[0] = ray_origin[0] - sphere_center[0]
-    oc[1] = ray_origin[1] - sphere_center[1]
-    oc[2] = ray_origin[2] - sphere_center[2]
+    oc_x = ray_origin[0] - sphere_center[0]
+    oc_y = ray_origin[1] - sphere_center[1]
+    oc_z = ray_origin[2] - sphere_center[2]
 
     a = length_squared_cuda(ray_direction)
-    half_b = dot_cuda(oc, ray_direction)
-    c = length_squared_cuda(oc) - sphere_radius * sphere_radius
+    half_b = oc_x * ray_direction[0] + oc_y * ray_direction[1] + oc_z * ray_direction[2]
+    c = oc_x**2 + oc_y**2 + oc_z**2 - sphere_radius * sphere_radius
     discriminant = half_b * half_b - a * c
 
     if discriminant <= 0:
@@ -134,20 +122,24 @@ def sphere_hit_cuda(
     hit_point[1] = ray_origin[1] + t * ray_direction[1]
     hit_point[2] = ray_origin[2] + t * ray_direction[2]
 
-    outward_normal = cuda.local.array(3, types.float64)
-    outward_normal[0] = (hit_point[0] - sphere_center[0]) / sphere_radius
-    outward_normal[1] = (hit_point[1] - sphere_center[1]) / sphere_radius
-    outward_normal[2] = (hit_point[2] - sphere_center[2]) / sphere_radius
+    outward_normal_x = (hit_point[0] - sphere_center[0]) / sphere_radius
+    outward_normal_y = (hit_point[1] - sphere_center[1]) / sphere_radius
+    outward_normal_z = (hit_point[2] - sphere_center[2]) / sphere_radius
 
-    front_face = dot_cuda(ray_direction, outward_normal) < 0.0
+    front_face = (
+        ray_direction[0] * outward_normal_x
+        + ray_direction[1] * outward_normal_y
+        + ray_direction[2] * outward_normal_z
+    ) < 0.0
+
     if front_face:
-        normal[0] = outward_normal[0]
-        normal[1] = outward_normal[1]
-        normal[2] = outward_normal[2]
+        normal[0] = outward_normal_x
+        normal[1] = outward_normal_y
+        normal[2] = outward_normal_z
     else:
-        normal[0] = -outward_normal[0]
-        normal[1] = -outward_normal[1]
-        normal[2] = -outward_normal[2]
+        normal[0] = -outward_normal_x
+        normal[1] = -outward_normal_y
+        normal[2] = -outward_normal_z
 
     return True, t, front_face
 
@@ -162,7 +154,7 @@ def schlick_cuda(cosine, ref_idx):
 def scatter_lambertian_cuda(
     ray_direction, hit_point, normal, rng_states, thread_id, new_origin, new_direction
 ):
-    scatter_direction = cuda.local.array(3, types.float64)
+    scatter_direction = cuda.local.array(3, types.float32)
     random_unit_vector_cuda(rng_states, thread_id, scatter_direction)
 
     new_origin[0] = hit_point[0]
@@ -187,13 +179,13 @@ def scatter_metal_cuda(
     new_origin,
     new_direction,
 ):
-    unit_direction = cuda.local.array(3, types.float64)
+    unit_direction = cuda.local.array(3, types.float32)
     unit_vector_cuda(ray_direction, unit_direction)
 
-    reflected = cuda.local.array(3, types.float64)
+    reflected = cuda.local.array(3, types.float32)
     reflect_cuda(unit_direction, normal, reflected)
 
-    fuzz_vector = cuda.local.array(3, types.float64)
+    fuzz_vector = cuda.local.array(3, types.float32)
     random_in_unit_sphere_cuda(rng_states, thread_id, fuzz_vector)
 
     new_origin[0] = hit_point[0]
@@ -221,10 +213,10 @@ def scatter_dielectric_cuda(
 ):
     etai_over_etat = (1.0 / ref_idx) if front_face else ref_idx
 
-    unit_direction = cuda.local.array(3, types.float64)
+    unit_direction = cuda.local.array(3, types.float32)
     unit_vector_cuda(ray_direction, unit_direction)
 
-    neg_unit_direction = cuda.local.array(3, types.float64)
+    neg_unit_direction = cuda.local.array(3, types.float32)
     neg_unit_direction[0] = -unit_direction[0]
     neg_unit_direction[1] = -unit_direction[1]
     neg_unit_direction[2] = -unit_direction[2]
@@ -236,7 +228,7 @@ def scatter_dielectric_cuda(
     new_origin[1] = hit_point[1]
     new_origin[2] = hit_point[2]
 
-    if etai_over_etat * sin_theta > 1.0 or xoroshiro128p_uniform_float64(
+    if etai_over_etat * sin_theta > 1.0 or xoroshiro128p_uniform_float32(
         rng_states, thread_id
     ) < schlick_cuda(cos_theta, etai_over_etat):
         # Reflect
@@ -265,9 +257,9 @@ def ray_color_cuda(
         result[2] = 0.0
         return
 
-    current_ray_origin = cuda.local.array(3, types.float64)
-    current_ray_direction = cuda.local.array(3, types.float64)
-    current_color = cuda.local.array(3, types.float64)
+    current_ray_origin = cuda.local.array(3, types.float32)
+    current_ray_direction = cuda.local.array(3, types.float32)
+    current_color = cuda.local.array(3, types.float32)
 
     current_ray_origin[0] = ray_origin[0]
     current_ray_origin[1] = ray_origin[1]
@@ -286,19 +278,19 @@ def ray_color_cuda(
         closest_t = math.inf
         hit_found = False
         hit_sphere_idx = -1
-        hit_point = cuda.local.array(3, types.float64)
-        hit_normal = cuda.local.array(3, types.float64)
+        hit_point = cuda.local.array(3, types.float32)
+        hit_normal = cuda.local.array(3, types.float32)
         hit_front_face = False
 
         for i in range(spheres_data.shape[0]):
-            sphere_center = cuda.local.array(3, types.float64)
+            sphere_center = cuda.local.array(3, types.float32)
             sphere_center[0] = spheres_data[i, 0]
             sphere_center[1] = spheres_data[i, 1]
             sphere_center[2] = spheres_data[i, 2]
             sphere_radius = spheres_data[i, 3]
 
-            temp_hit_point = cuda.local.array(3, types.float64)
-            temp_normal = cuda.local.array(3, types.float64)
+            temp_hit_point = cuda.local.array(3, types.float32)
+            temp_normal = cuda.local.array(3, types.float32)
 
             hit, t, front_face = sphere_hit_cuda(
                 current_ray_origin,
@@ -325,7 +317,7 @@ def ray_color_cuda(
 
         if not hit_found:
             # Sky gradient
-            unit_direction = cuda.local.array(3, types.float64)
+            unit_direction = cuda.local.array(3, types.float32)
             unit_vector_cuda(current_ray_direction, unit_direction)
             t = 0.5 * (unit_direction[1] + 1.0)
             sky_r = (1.0 - t) * 1.0 + t * 0.5
@@ -339,8 +331,8 @@ def ray_color_cuda(
 
         # Material scattering
         material_type = int(materials_data[hit_sphere_idx, 0])
-        new_origin = cuda.local.array(3, types.float64)
-        new_direction = cuda.local.array(3, types.float64)
+        new_origin = cuda.local.array(3, types.float32)
+        new_direction = cuda.local.array(3, types.float32)
 
         if material_type == 0:  # Lambertian
             albedo_r = materials_data[hit_sphere_idx, 1]
@@ -451,17 +443,17 @@ def render_pixels_cuda(
 
     thread_id = j * image_width + i
 
-    pixel_color = cuda.local.array(3, types.float64)
+    pixel_color = cuda.local.array(3, types.float32)
     pixel_color[0] = 0.0
     pixel_color[1] = 0.0
     pixel_color[2] = 0.0
 
-    origin = cuda.local.array(3, types.float64)
-    lower_left_corner = cuda.local.array(3, types.float64)
-    horizontal = cuda.local.array(3, types.float64)
-    vertical = cuda.local.array(3, types.float64)
-    u = cuda.local.array(3, types.float64)
-    v = cuda.local.array(3, types.float64)
+    origin = cuda.local.array(3, types.float32)
+    lower_left_corner = cuda.local.array(3, types.float32)
+    horizontal = cuda.local.array(3, types.float32)
+    vertical = cuda.local.array(3, types.float32)
+    u = cuda.local.array(3, types.float32)
+    v = cuda.local.array(3, types.float32)
 
     origin[0] = camera_data[0]
     origin[1] = camera_data[1]
@@ -485,18 +477,18 @@ def render_pixels_cuda(
 
     for _ in range(samples_per_pixel):
         # Add random sampling
-        u_coord = (i + xoroshiro128p_uniform_float64(rng_states, thread_id)) / (
+        u_coord = (i + xoroshiro128p_uniform_float32(rng_states, thread_id)) / (
             image_width - 1
         )
-        v_coord = (j + xoroshiro128p_uniform_float64(rng_states, thread_id)) / (
+        v_coord = (j + xoroshiro128p_uniform_float32(rng_states, thread_id)) / (
             image_height - 1
         )
 
         # Depth of field ray generation
-        rd = cuda.local.array(3, types.float64)
+        rd = cuda.local.array(3, types.float32)
         random_in_unit_disk_cuda(rng_states, thread_id, rd)
 
-        offset = cuda.local.array(3, types.float64)
+        offset = cuda.local.array(3, types.float32)
         offset[0] = u[0] * rd[0] + v[0] * rd[1]
         offset[1] = u[1] * rd[0] + v[1] * rd[1]
         offset[2] = u[2] * rd[0] + v[2] * rd[1]
@@ -506,12 +498,12 @@ def render_pixels_cuda(
         offset[1] *= lens_radius
         offset[2] *= lens_radius
 
-        ray_origin = cuda.local.array(3, types.float64)
+        ray_origin = cuda.local.array(3, types.float32)
         ray_origin[0] = origin[0] + offset[0]
         ray_origin[1] = origin[1] + offset[1]
         ray_origin[2] = origin[2] + offset[2]
 
-        ray_direction = cuda.local.array(3, types.float64)
+        ray_direction = cuda.local.array(3, types.float32)
         ray_direction[0] = (
             lower_left_corner[0]
             + u_coord * horizontal[0]
@@ -531,7 +523,7 @@ def render_pixels_cuda(
             - ray_origin[2]
         )
 
-        color = cuda.local.array(3, types.float64)
+        color = cuda.local.array(3, types.float32)
         ray_color_cuda(
             ray_origin,
             ray_direction,
