@@ -1,8 +1,9 @@
 [project]
 name = "rayt"
 version = "0.1.0"
-description = "Add your description here"
+description = "Ray Tracing in Python and Rust"
 readme = "README.md"
+license = { file = "LICENSE" }
 authors = [
     { name = "Gökmen Görgen", email = "gkmngrgn@gmail.com" }
 ]
@@ -18,7 +19,7 @@ test-gpu = "rayt.cli:test_gpu_availability"
 
 [tool.maturin]
 module-name = "rayt_rust._core"
-python-packages = ["rayt_rust"]
+python-packages = ["rayt", "rayt_rust"]
 python-source = "src"
 
 [tool.uv]
