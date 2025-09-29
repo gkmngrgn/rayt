@@ -2,6 +2,8 @@
 
 Ray Tracing codes. I follow Peter Shirley's [Ray Tracing](https://raytracing.github.io/) trilogy. The goal is to have the same output with Python, solving the performance problems.
 
+You can test it from Hugging Face Spaces: https://huggingface.co/spaces/goedev/rayt-web
+
 ![](assets/image.png)
 
 ## How to Build
