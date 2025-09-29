@@ -1,15 +1,16 @@
+import importlib.util
 import traceback
 import numpy as np
 
 # Try to import CUDA dependencies
-HAS_NUMBA_CUDA = True
-CUDA_IMPORT_ERROR = None
-
-try:
+if importlib.util.find_spec("numba_cuda") is not None:
     from numba import cuda
-except ImportError as e:
+
+    HAS_NUMBA_CUDA = True
+    CUDA_IMPORT_ERROR = None
+else:
     HAS_NUMBA_CUDA = False
-    CUDA_IMPORT_ERROR = str(e)
+    CUDA_IMPORT_ERROR = "numba_cuda not found."
 
 
 # Module-level kernels to avoid recompilation
