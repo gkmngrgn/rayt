@@ -1,0 +1,12 @@
+[package]
+name = "rayt_rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.22.4", features = ["extension-module", "abi3-py310"] }
+rand = "0.9.2"

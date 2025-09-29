@@ -2,10 +2,7 @@ import itertools
 
 import click
 
-from rayt.camera import Camera
-from rayt.hittable_list import HittableList
-from rayt.numba_renderer import render_with_numba
-from rayt.vec3 import Color, Point3, Vec3, random_double
+from rayt_rust._core import Camera, HittableList, Vec3, random_double, Color, Point3
 
 
 def random_scene() -> HittableList:
@@ -72,8 +69,8 @@ def random_scene() -> HittableList:
 @click.option("--max-depth", default=50, help="Maximum ray bounce depth")
 @click.option(
     "--engine",
-    type=click.Choice(["cpu", "gpu"]),
-    default="cpu",
+    type=click.Choice(["numba", "cuda", "rust"]),
+    default="numba",
     help="Rendering engine: cpu (force CPU), gpu (force GPU)",
 )
 def one_weekend(
@@ -96,12 +93,18 @@ def one_weekend(
     )
 
     match engine:
-        case "gpu":
+        case "cuda":
             from rayt.cuda_renderer import render_with_cuda
 
             render_func = render_with_cuda
-        case _:
+        case "numba":
+            from rayt.numba_renderer import render_with_numba
+
             render_func = render_with_numba
+        case _:
+            from rayt.rust_renderer import render_with_rust
+
+            render_func = render_with_rust
 
     render_func(world, camera, image_width, image_height, samples_per_pixel, max_depth)
 

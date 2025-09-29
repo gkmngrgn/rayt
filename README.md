@@ -10,13 +10,14 @@ This project uses Python 3.13 and UV package manager.
 
 ```shell
 # Basic rendering (300px wide, CPU engine)
-uv run one-weekend --image-width=300 --samples-per-pixel=20 > image.ppm
+uv run one-weekend --image-width=300 --samples-per-pixel=20 > image_numba.ppm
 
-# High quality rendering
-uv run one-weekend --image-width=1200 --samples-per-pixel=100 > image.ppm
+# High quality rendering, using rust
+uv run one-weekend --image-width=1200 --samples-per-pixel=100 --engine=rust > image_rust.ppm
 
 # GPU rendering (if CUDA available)
-uv run one-weekend --image-width=300 --samples-per-pixel=20 --engine=gpu > image.ppm
+uv sync --group cuda
+uv run one-weekend --image-width=2400 --samples-per-pixel=100 --engine=cuda > image_cuda.ppm
 ```
 
 ## Features

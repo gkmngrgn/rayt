@@ -3,16 +3,10 @@ import sys
 import numpy as np
 import numpy.typing as npt
 
-from rayt.camera import Camera
-from rayt.color import get_color
-from rayt.hittable_list import HittableList
-from rayt.material import Dielectric, Lambertian, Metal
-from rayt.sphere import Sphere
-from rayt.vec3 import Color
-
 from numba import cuda
 from numba.cuda.random import create_xoroshiro128p_states
 from rayt.cuda_optimized import render_pixels_cuda
+from rayt_rust._core import Camera, Color, HittableList, get_color
 
 
 class CudaRenderer:
@@ -24,72 +18,19 @@ class CudaRenderer:
         self.camera_data: npt.NDArray[np.float64] | None = None
 
     def _prepare_scene_data(self, world: HittableList, camera: Camera) -> None:
-        """Convert scene objects to NumPy arrays for CUDA"""
-        spheres = []
-        materials = []
+        """Convert scene objects to NumPy arrays for Numba"""
+        # Sphere data: [center_x, center_y, center_z, radius]
+        self.spheres_data = np.array(world.get_sphere_data(), dtype=np.float64)
 
-        for obj in world.objects:
-            if isinstance(obj, Sphere):
-                # Sphere data: [center_x, center_y, center_z, radius]
-                sphere_data = [obj.center.x, obj.center.y, obj.center.z, obj.radius]
-                spheres.append(sphere_data)
-
-                # Material data: [type, param1, param2, param3, param4]
-                if isinstance(obj.material, Lambertian):
-                    # Type 0: Lambertian [type, albedo_r, albedo_g, albedo_b, unused]
-                    material_data = [
-                        0,
-                        obj.material.albedo.x,
-                        obj.material.albedo.y,
-                        obj.material.albedo.z,
-                        0.0,
-                    ]
-                elif isinstance(obj.material, Metal):
-                    # Type 1: Metal [type, albedo_r, albedo_g, albedo_b, fuzz]
-                    material_data = [
-                        1,
-                        obj.material.albedo.x,
-                        obj.material.albedo.y,
-                        obj.material.albedo.z,
-                        obj.material.fuzz,
-                    ]
-                elif isinstance(obj.material, Dielectric):
-                    # Type 2: Dielectric [type, ref_idx, unused, unused, unused]
-                    material_data = [2, obj.material.ref_idx, 0.0, 0.0, 0.0]
-                else:
-                    # Default to Lambertian with white color
-                    material_data = [0, 1.0, 1.0, 1.0, 0.0]
-
-                materials.append(material_data)
-
-        self.spheres_data = np.array(spheres, dtype=np.float64)
-        self.materials_data = np.array(materials, dtype=np.float64)
+        # Material data: [type, param1, param2, param3, param4]
+        # Type 0: Lambertian [type, albedo_r, albedo_g, albedo_b, unused]
+        # Type 1: Metal [type, albedo_r, albedo_g, albedo_b, fuzz]
+        # Type 2: Dielectric [type, ref_idx, unused, unused, unused]
+        # Default to Lambertian with white color
+        self.materials_data = np.array(world.get_material_data(), dtype=np.float64)
 
         # Camera data: [origin, lower_left_corner, horizontal, vertical, lens_radius, u, v]
-        self.camera_data = np.array(
-            [
-                camera.origin.x,
-                camera.origin.y,
-                camera.origin.z,
-                camera.lower_left_corner.x,
-                camera.lower_left_corner.y,
-                camera.lower_left_corner.z,
-                camera.horizontal.x,
-                camera.horizontal.y,
-                camera.horizontal.z,
-                camera.vertical.x,
-                camera.vertical.y,
-                camera.vertical.z,
-                camera.lens_radius,
-                camera.u.x,
-                camera.u.y,
-                camera.u.z,
-                camera.v.x,
-                camera.v.y,
-                camera.v.z,
-            ],
-            dtype=np.float64,
-        )
+        self.camera_data = np.array(camera.get_data(), dtype=np.float64)
 
     def render(
         self,
