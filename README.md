@@ -17,7 +17,7 @@ uv run one-weekend --image-width=1200 --samples-per-pixel=100 --engine=rust > im
 
 # GPU rendering (if CUDA available)
 uv sync --group cuda
-uv run one-weekend --image-width=2400 --samples-per-pixel=100 --engine=cuda > image_cuda.ppm
+uv run one-weekend --image-width=2400 --samples-per-pixel=200 --engine=cuda > image_cuda.ppm
 ```
 
 ## Features
