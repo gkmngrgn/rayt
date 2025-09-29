@@ -2,6 +2,10 @@
 name = "rayt_rust"
 version = "0.1.0"
 edition = "2021"
+homepage = "https://github.com/gkmngrgn/rayt"
+description = "Ray Tracing in Rust"
+license-file = "LICENSE"
+readme = "README.md"
 
 [lib]
 name = "_core"
