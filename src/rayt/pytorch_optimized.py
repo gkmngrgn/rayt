@@ -32,25 +32,18 @@ def refract_torch(uv, n, etai_over_etat):
 
 
 def random_unit_vector_torch(device="cpu"):
-    a = torch.rand(1, device=device) * 2.0 * math.pi
-    z = torch.rand(1, device=device) * 2.0 - 1.0
-    r = torch.sqrt(1.0 - z * z)
+    a = (torch.rand(1, device=device) * 2.0 * math.pi).item()
+    z = (torch.rand(1, device=device) * 2.0 - 1.0).item()
+    r = math.sqrt(1.0 - z * z)
     return torch.tensor(
-        [r * torch.cos(a), r * torch.sin(a), z], dtype=torch.float64, device=device
+        [r * math.cos(a), r * math.sin(a), z], dtype=torch.float64, device=device
     )
 
 
 def random_in_unit_disk_torch(device="cpu"):
     while True:
-        p = torch.tensor(
-            [
-                torch.rand(1, device=device) * 2.0 - 1.0,
-                torch.rand(1, device=device) * 2.0 - 1.0,
-                0.0,
-            ],
-            dtype=torch.float64,
-            device=device,
-        )
+        p = torch.rand(3, dtype=torch.float64, device=device) * 2.0 - 1.0
+        p[2] = 0.0
         if length_squared_torch(p) >= 1.0:
             continue
         return p

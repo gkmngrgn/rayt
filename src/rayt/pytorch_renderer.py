@@ -1,6 +1,5 @@
 import sys
 import torch
-import numpy as np
 
 from rayt_rust._core import Camera, HittableList, get_color, Color
 from rayt.pytorch_optimized import render_pixel_torch
@@ -18,16 +17,13 @@ class PyTorchRenderer:
     def _prepare_scene_data(self, world: HittableList, camera: Camera) -> None:
         """Convert scene objects to PyTorch tensors"""
         # Sphere data
-        spheres_np = np.array(world.get_sphere_data(), dtype=np.float64)
-        self.spheres_data = torch.from_numpy(spheres_np).to(self.device)
+        self.spheres_data = torch.tensor(world.get_sphere_data(), dtype=torch.float64, device=self.device)
 
         # Material data
-        materials_np = np.array(world.get_material_data(), dtype=np.float64)
-        self.materials_data = torch.from_numpy(materials_np).to(self.device)
+        self.materials_data = torch.tensor(world.get_material_data(), dtype=torch.float64, device=self.device)
 
         # Camera data
-        camera_np = np.array(camera.get_data(), dtype=np.float64)
-        self.camera_data = torch.from_numpy(camera_np).to(self.device)
+        self.camera_data = torch.tensor(camera.get_data(), dtype=torch.float64, device=self.device)
 
     def render(
         self,
@@ -73,10 +69,10 @@ class PyTorchRenderer:
                     self.device,
                 )
 
-                # Convert tensor to numpy array for color processing
-                pixel_color_array = pixel_color_tensor.cpu().numpy()
+                # Convert tensor to Color object for output
+                pixel_color_cpu = pixel_color_tensor.cpu()
                 pixel_color = Color(
-                    pixel_color_array[0], pixel_color_array[1], pixel_color_array[2]
+                    pixel_color_cpu[0].item(), pixel_color_cpu[1].item(), pixel_color_cpu[2].item()
                 )
                 print(get_color(pixel_color, samples_per_pixel))
 
