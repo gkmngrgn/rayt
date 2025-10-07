@@ -11,9 +11,9 @@ from rayt_rust._core import Camera, Vec3, Point3
 @click.option("--max-depth", default=50, help="Maximum ray bounce depth")
 @click.option(
     "--engine",
-    type=click.Choice(["numba", "cuda", "rust"]),
+    type=click.Choice(["numba", "cuda", "rust", "pytorch-cpu", "pytorch-gpu"]),
     default="numba",
-    help="Rendering engine: cpu (force CPU), gpu (force GPU)",
+    help="Rendering engine: numba, cuda, rust, pytorch-cpu, pytorch-gpu",
 )
 def one_weekend(
     aspect_ratio: float,
@@ -34,21 +34,32 @@ def one_weekend(
         focus_dist=10.0,
     )
 
+    render_func = None
     match engine:
         case "cuda":
             from rayt.cuda_renderer import render_with_cuda
-
             render_func = render_with_cuda
         case "numba":
             from rayt.numba_renderer import render_with_numba
-
             render_func = render_with_numba
-        case _:
+        case "pytorch-cpu":
+            from rayt.pytorch_renderer import render_with_pytorch
+            render_func = lambda w, c, iw, ih, spp, md: render_with_pytorch(
+                w, c, iw, ih, spp, md, use_gpu=False
+            )
+        case "pytorch-gpu":
+            from rayt.pytorch_renderer import render_with_pytorch
+            render_func = lambda w, c, iw, ih, spp, md: render_with_pytorch(
+                w, c, iw, ih, spp, md, use_gpu=True
+            )
+        case "rust":
             from rayt.rust_renderer import render_with_rust
-
             render_func = render_with_rust
 
-    render_func(world, camera, image_width, image_height, samples_per_pixel, max_depth)
+    if render_func:
+        render_func(
+            world, camera, image_width, image_height, samples_per_pixel, max_depth
+        )
 
 
 @click.command()
