@@ -6,6 +6,9 @@ You can test it from Hugging Face Spaces: https://huggingface.co/spaces/goedev/r
 
 ![](assets/image.png)
 
+> [!NOTE]
+> The project has different solutions of implementing ray tracing. It will not have a stable version, some solutions may be deleted or replaced in future. Take a look at [this post](https://gokmengorgen.net/2025/10/10/running-ray-tracing-on-gpu-server/) for more information.
+
 ## How to Build
 
 This project uses Python 3.13 and UV package manager.
